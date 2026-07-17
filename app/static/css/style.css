@@ -1,0 +1,127 @@
+body {
+  background: #eef2f7;
+}
+
+.card {
+  border-radius: 15px;
+}
+
+.card-header {
+  border-radius: 15px 15px 0 0 !important;
+}
+
+.btn {
+  border-radius: 10px;
+}
+
+input,
+select {
+  border-radius: 10px !important;
+}
+
+.dropdown-menu {
+  min-width: 260px;
+  animation: dropdown 0.25s ease;
+}
+
+@keyframes dropdown {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  padding: 12px 18px;
+  border-radius: 10px;
+  transition: 0.25s;
+}
+
+.dropdown-item:hover {
+  background: #0d6efd;
+  color: white;
+  transform: translateX(5px);
+}
+
+.navbar {
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.15);
+}
+
+/* ===========================
+   Professional Profile Dropdown
+=========================== */
+
+.dropdown-menu {
+  min-width: 290px;
+  border: none;
+  border-radius: 18px;
+  overflow: hidden;
+  animation: fadeDown 0.25s ease;
+}
+
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  padding: 12px 18px;
+  border-radius: 10px;
+  margin: 4px 8px;
+  transition: 0.3s;
+}
+
+.dropdown-item:hover {
+  background: #0d6efd;
+  color: white;
+  transform: translateX(6px);
+}
+
+.dropdown-divider {
+  margin: 8px 0;
+}
+
+.navbar {
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-brand {
+  letter-spacing: 0.5px;
+}
+
+.nav-link img {
+  transition: 0.3s;
+}
+
+.nav-link:hover img {
+  transform: scale(1.1);
+}
+
+.dashboard-card {
+  border-radius: 15px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
+}
+
+.dashboard-card {
+  border-radius: 15px;
+  transition: 0.3s;
+  cursor: pointer;
+}

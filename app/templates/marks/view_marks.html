@@ -1,0 +1,95 @@
+{% extends "base.html" %} {% block title %}Marks{% endblock %} {% block content
+%}
+
+<div class="container mt-4">
+  <h2>📚 Student Marks</h2>
+
+  <form method="GET" class="row mb-3">
+    <div class="col-md-6">
+      <input
+        type="text"
+        name="search"
+        class="form-control"
+        placeholder="Search Student..."
+        value="{{ search }}"
+      />
+    </div>
+
+    <div class="col-md-2">
+      <button class="btn btn-primary w-100">🔍 Search</button>
+    </div>
+  </form>
+
+  <a href="{{ url_for('main.add_marks') }}" class="btn btn-success mb-3">
+    ➕ Add Marks
+  </a>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Student</th>
+        <th>Subject</th>
+        <th>Internal</th>
+        <th>External</th>
+        <th>Total</th>
+        <th>Grade</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for mark in marks %}
+
+      <tr>
+        <td>{{ mark.id }}</td>
+
+        <td>{{ mark.student.name }}</td>
+
+        <td>{{ mark.subject.subject_name }}</td>
+
+        <td>{{ mark.internal }}</td>
+
+        <td>{{ mark.external }}</td>
+
+        <td>{{ mark.total }}</td>
+
+        <td>{{ mark.grade }}</td>
+
+        <td>
+          <a
+            href="{{ url_for('main.student_result', student_id=mark.student.id) }}"
+            class="btn btn-info btn-sm"
+          >
+            📄 Result
+          </a>
+
+          <a
+            href="{{ url_for('main.edit_marks', id=mark.id) }}"
+            class="btn btn-warning btn-sm"
+          >
+            ✏️ Edit
+          </a>
+
+          <a
+            href="{{ url_for('main.delete_marks', id=mark.id) }}"
+            class="btn btn-danger btn-sm"
+            onclick="return confirm('Delete this mark?');"
+          >
+            🗑 Delete
+          </a>
+        </td>
+      </tr>
+
+      {% else %}
+
+      <tr>
+        <td colspan="8" class="text-center">No Marks Available</td>
+      </tr>
+
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

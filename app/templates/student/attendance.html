@@ -1,0 +1,63 @@
+{% extends "base.html" %} {% block title %}My Attendance{% endblock %} {% block
+content %}
+
+<div class="container mt-4">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h3>📅 My Attendance</h3>
+    </div>
+
+    <div class="card-body">
+      <h5>
+        Attendance Percentage :
+        <span class="text-success"> {{ attendance_percentage }}% </span>
+      </h5>
+
+      <hr />
+
+      <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>Date</th>
+            <th>Subject</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for record in attendance %}
+
+          <tr>
+            <td>{{ record.attendance_date }}</td>
+
+            <td>{{ record.subject.subject_name }}</td>
+
+            <td>
+              {% if record.status == "Present" %}
+
+              <span class="badge bg-success"> Present </span>
+
+              {% else %}
+
+              <span class="badge bg-danger"> Absent </span>
+
+              {% endif %}
+            </td>
+          </tr>
+
+          {% else %}
+
+          <tr>
+            <td colspan="3" class="text-center">
+              No attendance records found.
+            </td>
+          </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

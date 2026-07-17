@@ -1,0 +1,147 @@
+{% extends "base.html" %} {% block title %}Teacher Dashboard{% endblock %} {%
+block content %}
+
+<div class="container mt-4">
+  <h2 class="mb-4">👨‍🏫 Welcome Teacher</h2>
+
+  <!-- Statistics -->
+
+  <div class="row">
+    <div class="col-md-3 mb-3">
+      <div class="card bg-primary text-white shadow">
+        <div class="card-body">
+          <h5>Subjects</h5>
+          <h2>{{ total_subjects }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card bg-success text-white shadow">
+        <div class="card-body">
+          <h5>Students</h5>
+          <h2>{{ total_students }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card bg-warning text-dark shadow">
+        <div class="card-body">
+          <h5>Attendance</h5>
+          <h2>0</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card bg-danger text-white shadow">
+        <div class="card-body">
+          <h5>Marks</h5>
+          <h2>0</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Menu -->
+
+  <div class="row mt-3 g-3">
+    <div class="col-md-4">
+      <a
+        href="{{ url_for('main.teacher_students') }}"
+        class="text-decoration-none"
+      >
+        <div class="card bg-primary text-white shadow dashboard-card">
+          <div class="card-body text-center">
+            <h2>👨‍🎓</h2>
+            <h5>Students</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-4">
+      <a
+        href="{{ url_for('main.teacher_attendance') }}"
+        class="text-decoration-none"
+      >
+        <div class="card bg-success text-white shadow dashboard-card">
+          <div class="card-body text-center">
+            <h2>✅</h2>
+            <h5>Take Attendance</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-4">
+      <a
+        href="{{ url_for('main.teacher_view_attendance') }}"
+        class="text-decoration-none"
+      >
+        <div class="card bg-info text-white shadow dashboard-card">
+          <div class="card-body text-center">
+            <h2>📋</h2>
+            <h5>View Attendance</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-4">
+      <a
+        href="{{ url_for('main.teacher_edit_attendance') }}"
+        class="text-decoration-none"
+      >
+        <div class="card bg-warning text-dark shadow dashboard-card">
+          <div class="card-body text-center">
+            <h2>✏️</h2>
+            <h5>Edit Attendance</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-4">
+      <a
+        href="{{ url_for('main.teacher_marks') }}"
+        class="text-decoration-none"
+      >
+        <div class="card bg-secondary text-white shadow dashboard-card">
+          <div class="card-body text-center">
+            <h2>📝</h2>
+            <h5>Enter Marks</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-4">
+      <a href="{{ url_for('main.view_marks') }}" class="text-decoration-none">
+        <div class="card bg-dark text-white shadow dashboard-card">
+          <div class="card-body text-center">
+            <h2>📊</h2>
+            <h5>View Marks</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-4">
+      <a
+        href="{{ url_for('main.teacher_timetable') }}"
+        class="text-decoration-none"
+      >
+        <div class="card bg-secondary text-white shadow dashboard-card">
+          <div class="card-body text-center">
+            <h2>📅</h2>
+            <h5>Timetable</h5>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

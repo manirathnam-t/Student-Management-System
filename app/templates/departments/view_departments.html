@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}
+Departments
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>Departments</h2>
+
+    <div class="mb-3">
+
+        <a href="{{ url_for('main.add_department') }}"
+           class="btn btn-success">
+            + Add Department
+        </a>
+
+    </div>
+
+    <form method="GET" class="mb-3">
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Search Department"
+            value="{{ search }}">
+
+    </form>
+
+    <table class="table table-bordered table-hover">
+
+        <thead class="table-dark">
+
+            <tr>
+                <th>ID</th>
+                <th>Department</th>
+                <th>HOD</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for department in departments %}
+
+            <tr>
+
+                <td>{{ department.id }}</td>
+
+                <td>{{ department.name }}</td>
+
+                <td>{{ department.hod }}</td>
+
+                <td>{{ department.description }}</td>
+<td>
+
+    <a href="{{ url_for('main.edit_department', id=department.id) }}"
+       class="btn btn-warning btn-sm">
+
+        Edit
+
+    </a>
+
+   <a href="{{ url_for('main.delete_department', id=department.id) }}"
+   class="btn btn-danger btn-sm"
+   onclick="return confirm('Are you sure you want to delete this department?')">
+
+    Delete
+
+</a>
+
+</td>
+
+            </tr>
+
+            {% else %}
+
+            <tr>
+
+                <td colspan="5" class="text-center">
+
+                    No Departments Found
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

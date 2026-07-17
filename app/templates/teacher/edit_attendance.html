@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Attendance{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>✏️ Edit Attendance</h2>
+
+    <form method="POST">
+
+        <div class="row mb-3">
+
+            <div class="col-md-5">
+
+                <label>Subject</label>
+
+                <select class="form-select" name="subject_id" required>
+
+                    {% for subject in subjects %}
+
+                    <option value="{{ subject.id }}">
+                        {{ subject.subject_name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <label>Date</label>
+
+                <input
+                    type="date"
+                    name="attendance_date"
+                    class="form-control"
+                    required>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <label>&nbsp;</label>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary w-100"
+                    name="action"
+                    value="search">
+
+                    🔍 Search
+
+                </button>
+
+            </div>
+
+        </div>
+
+        {% if attendance_list %}
+
+        <table class="table table-bordered table-hover">
+
+            <thead class="table-dark">
+
+                <tr>
+
+                    <th>Photo</th>
+                    <th>Register No</th>
+                    <th>Name</th>
+                    <th>Status</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for attendance in attendance_list %}
+
+                <tr>
+
+                    <td>
+
+                        <img
+                            src="{{ url_for('static', filename='uploads/students/' + attendance.student.photo) }}"
+                            width="45"
+                            height="45"
+                            class="rounded-circle">
+
+                    </td>
+
+                    <td>{{ attendance.student.register_no }}</td>
+
+                    <td>{{ attendance.student.name }}</td>
+
+                    <td>
+
+                        <select
+                            class="form-select"
+                            name="status_{{ attendance.id }}">
+
+                            <option value="Present"
+                                {% if attendance.status == "Present" %}selected{% endif %}>
+                                ✅ Present
+                            </option>
+
+                            <option value="Absent"
+                                {% if attendance.status == "Absent" %}selected{% endif %}>
+                                ❌ Absent
+                            </option>
+
+                        </select>
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        <button
+            type="submit"
+            class="btn btn-success"
+            name="action"
+            value="update">
+
+            💾 Update Attendance
+
+        </button>
+
+        {% endif %}
+
+    </form>
+
+</div>
+
+{% endblock %}

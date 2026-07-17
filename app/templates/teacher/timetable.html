@@ -1,0 +1,42 @@
+{% extends "base.html" %} {% block title %}Teacher Timetable{% endblock %} {%
+block content %}
+
+<div class="container mt-4">
+  <h2 class="mb-4">📅 My Timetable</h2>
+
+  <table class="table table-bordered table-striped">
+    <thead class="table-primary">
+      <tr>
+        <th>Day</th>
+        <th>Period</th>
+        <th>Subject</th>
+        <th>Teacher</th>
+        <th>Classroom</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for row in timetable %}
+
+      <tr>
+        <td>{{ row.day }}</td>
+        <td>{{ row.period }}</td>
+        <td>{{ row.subject.subject_name }}</td>
+        <td>{{ row.teacher.name }}</td>
+        <td>{{ row.classroom }}</td>
+      </tr>
+
+      {% else %}
+
+      <tr>
+        <td colspan="5" class="text-center text-muted">
+          No timetable available.
+        </td>
+      </tr>
+
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

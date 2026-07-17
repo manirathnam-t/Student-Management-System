@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Add Marks{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>Add Student Marks</h2>
+
+    <form method="POST">
+
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+
+            {{ form.student.label(class="form-label") }}
+
+            {{ form.student(class="form-select") }}
+
+        </div>
+
+        <div class="mb-3">
+
+            {{ form.subject.label(class="form-label") }}
+
+            {{ form.subject(class="form-select") }}
+
+        </div>
+
+        <div class="mb-3">
+
+            {{ form.internal.label(class="form-label") }}
+
+            {{ form.internal(class="form-control") }}
+
+        </div>
+
+        <div class="mb-3">
+
+            {{ form.external.label(class="form-label") }}
+
+            {{ form.external(class="form-control") }}
+
+        </div>
+
+        {{ form.submit(class="btn btn-success") }}
+
+        <a href="{{ url_for('main.view_marks') }}"
+           class="btn btn-secondary">
+
+            Cancel
+
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

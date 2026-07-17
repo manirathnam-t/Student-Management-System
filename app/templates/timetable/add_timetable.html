@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Add Timetable{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>Add Timetable</h2>
+
+    <form method="POST">
+
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            {{ form.day.label(class="form-label") }}
+            {{ form.day(class="form-select") }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.period.label(class="form-label") }}
+            {{ form.period(class="form-select") }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.subject.label(class="form-label") }}
+            {{ form.subject(class="form-select") }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.teacher.label(class="form-label") }}
+            {{ form.teacher(class="form-select") }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.classroom.label(class="form-label") }}
+            {{ form.classroom(class="form-control") }}
+        </div>
+
+        {{ form.submit(class="btn btn-success") }}
+
+        <a href="{{ url_for('main.view_timetable') }}"
+           class="btn btn-secondary">
+
+            Cancel
+
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

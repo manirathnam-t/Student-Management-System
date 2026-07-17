@@ -1,0 +1,68 @@
+{% extends "base.html" %} {% block title %}Teacher Marks{% endblock %} {% block
+content %}
+
+<div class="container mt-4">
+  <div class="card shadow">
+    <div class="card-header bg-success text-white">
+      <h3>📝 Enter Student Marks</h3>
+    </div>
+
+    <div class="card-body">
+      <form method="POST">
+        <div class="mb-3">
+          <label>Student</label>
+
+          <select class="form-select" name="student_id">
+            {% for student in students %}
+
+            <option value="{{ student.id }}">{{ student.name }}</option>
+
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label>Subject</label>
+
+          <select class="form-select" name="subject_id">
+            {% for subject in subjects %}
+
+            <option value="{{ subject.id }}">{{ subject.subject_name }}</option>
+
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label>Internal Marks</label>
+
+          <input
+            type="number"
+            name="internal"
+            class="form-control"
+            required
+            min="0"
+            max="40"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label>External Marks</label>
+
+          <input
+            type="number"
+            name="external"
+            class="form-control"
+            required
+            min="0"
+            max="60"
+          />
+        </div>
+
+        <button class="btn btn-success">Save Marks</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %} {% block title %}Issue Book{% endblock %} {% block
+content %}
+
+<div class="container mt-4">
+  <h2>📕 Issue Book</h2>
+
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.student.label(class="form-label") }} {{
+      form.student(class="form-select") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.book.label(class="form-label") }} {{
+      form.book(class="form-select") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.issue_date.label(class="form-label") }} {{
+      form.issue_date(class="form-control") }}
+    </div>
+
+    {{ form.submit(class="btn btn-success") }}
+
+    <a href="{{ url_for('main.view_issued_books') }}" class="btn btn-secondary">
+      Cancel
+    </a>
+  </form>
+</div>
+
+{% endblock %}

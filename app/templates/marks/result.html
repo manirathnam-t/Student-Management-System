@@ -1,0 +1,88 @@
+{% extends "base.html" %} {% block title %}Student Result{% endblock %} {% block
+content %}
+
+<div class="container mt-4">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h3>🎓 Student Result Sheet</h3>
+    </div>
+
+    <div class="card-body">
+      <h5>Student Name : {{ student.name }}</h5>
+
+      <h5>Register No : {{ student.register_no }}</h5>
+
+      <hr />
+
+      <table class="table table-bordered">
+        <thead class="table-dark">
+          <tr>
+            <th>Subject</th>
+
+            <th>Internal</th>
+
+            <th>External</th>
+
+            <th>Total</th>
+
+            <th>Grade</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for mark in marks %}
+
+          <tr>
+            <td>{{ mark.subject.subject_name }}</td>
+
+            <td>{{ mark.internal }}</td>
+
+            <td>{{ mark.external }}</td>
+
+            <td>{{ mark.total }}</td>
+
+            <td>{{ mark.grade }}</td>
+          </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="mt-4">
+        <h4>
+          Overall Percentage :
+          <span class="text-success"> {{ "%.2f"|format(percentage) }} % </span>
+        </h4>
+
+        <h4>
+          Result : {% if result == "PASS" %}
+
+          <span class="badge bg-success"> PASS </span>
+
+          {% else %}
+
+          <span class="badge bg-danger"> FAIL </span>
+
+          {% endif %}
+        </h4>
+      </div>
+
+      <div class="mt-4">
+        <button onclick="window.print()" class="btn btn-primary">
+          🖨 Print Result
+        </button>
+        <a
+          href="{{ url_for('main.download_result_pdf', student_id=student.id) }}"
+          class="btn btn-danger"
+        >
+          📄 Download PDF
+        </a>
+        <a href="{{ url_for('main.view_marks') }}" class="btn btn-secondary">
+          Back
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

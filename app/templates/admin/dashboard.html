@@ -1,0 +1,192 @@
+{% extends "base.html" %} {% block title %} Admin Dashboard {% endblock %} {%
+block content %}
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+
+    <div class="col-md-3">
+      <div class="list-group shadow">
+        <a href="#" class="list-group-item list-group-item-action active">
+          Dashboard
+        </a>
+
+        <a
+          href="{{ url_for('main.view_students') }}"
+          class="list-group-item list-group-item-action"
+        >
+          Students
+        </a>
+
+        <a
+          href="{{ url_for('main.view_teachers') }}"
+          class="list-group-item list-group-item-action"
+        >
+          Teachers
+        </a>
+
+        <a
+          href="{{ url_for('main.view_departments') }}"
+          class="list-group-item list-group-item-action"
+        >
+          Departments
+        </a>
+
+        <a
+          href="{{ url_for('main.view_courses') }}"
+          class="list-group-item list-group-item-action"
+        >
+          Courses
+        </a>
+        <a
+          href="{{ url_for('main.view_subjects') }}"
+          class="list-group-item list-group-item-action"
+        >
+          Subjects
+        </a>
+
+        <a
+          href="{{ url_for('main.view_attendance') }}"
+          class="list-group-item list-group-item-action"
+        >
+          View Attendance
+        </a>
+
+        <a
+          href="{{ url_for('main.view_fees') }}"
+          class="list-group-item list-group-item-action"
+        >
+          💰 Fees
+        </a>
+
+        <a
+          href="{{ url_for('main.view_timetable') }}"
+          class="list-group-item list-group-item-action"
+        >
+          📅 Timetable
+        </a>
+
+        <a
+          href="{{ url_for('main.view_books') }}"
+          class="list-group-item list-group-item-action"
+        >
+          📚 Library
+        </a>
+
+        <a
+          href="{{ url_for('main.view_issued_books') }}"
+          class="list-group-item list-group-item-action"
+        >
+          📕 Issued Books
+        </a>
+
+        <a
+          href="{{ url_for('main.view_notice') }}"
+          class="list-group-item list-group-item-action"
+        >
+          📢 Notice Board
+        </a>
+
+        <a
+          href="{{ url_for('main.view_marks') }}"
+          class="list-group-item list-group-item-action"
+        >
+          Marks
+        </a>
+
+        <a
+          href="{{ url_for('auth.logout') }}"
+          class="list-group-item list-group-item-action text-danger"
+        >
+          Logout
+        </a>
+      </div>
+    </div>
+
+    <!-- Main -->
+
+    <div class="col-md-9">
+      <h2 class="mb-4">Welcome Admin 👋</h2>
+
+      <div class="mb-3">
+        <a href="{{ url_for('main.add_student') }}" class="btn btn-success">
+          ➕ Add Student
+        </a>
+      </div>
+
+      <div class="row">
+        <div class="col-md-3">
+          <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+              <h5>Total Students</h5>
+              <h2>{{ total_students }}</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+              <h5>Teachers</h5>
+
+              <h2>0</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+              <h5>Subjects</h5>
+              <h2>0</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card text-white bg-danger mb-3">
+            <div class="card-body">
+              <h5>Departments</h5>
+
+              <h2>0</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow">
+        <div class="card-header bg-info text-white">📢 Latest Notices</div>
+
+        <div class="card-body">
+          {% if latest_notices %}
+
+          <ul class="list-group">
+            {% for notice in latest_notices %}
+
+            <li class="list-group-item">
+              <strong>{{ notice.title }}</strong>
+
+              <br />
+
+              {{ notice.description }}
+
+              <br />
+
+              <small class="text-muted"> {{ notice.notice_date }} </small>
+            </li>
+
+            {% endfor %}
+          </ul>
+
+          {% else %}
+
+          <p>No Notices Available.</p>
+
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% endblock %}
+</div>

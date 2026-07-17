@@ -1,0 +1,8 @@
+@main.route("/students/add", methods=["GET", "POST"]) @login_required def
+add_student(): form = StudentForm() if form.validate_on_submit(): student =
+Student( register_no=form.register_no.data, name=form.name.data,
+department=form.department.data, year=form.year.data, section=form.section.data,
+email=form.email.data, phone=form.phone.data ) db.session.add(student)
+db.session.commit() flash("Student Added Successfully!", "success") return
+redirect(url_for("main.admin_dashboard")) return render_template(
+"students/add_student.html", form=form )

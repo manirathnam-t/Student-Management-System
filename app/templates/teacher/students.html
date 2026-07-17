@@ -1,0 +1,52 @@
+{% extends "base.html" %} {% block title %} Teacher - Students {% endblock %} {%
+block content %}
+
+<div class="container mt-4">
+  <h2>👨‍🎓 Student List</h2>
+
+  <table class="table table-bordered table-hover mt-3">
+    <thead class="table-dark">
+      <tr>
+        <th>Photo</th>
+        <th>Register No</th>
+        <th>Name</th>
+        <th>Department</th>
+        <th>Year</th>
+        <th>Section</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for student in students %}
+
+      <tr>
+        <td>
+          <img
+            src="{{ url_for('static',
+                    filename='uploads/students/' + student.photo) }}"
+            width="50"
+            height="50"
+            class="rounded-circle"
+          />
+        </td>
+
+        <td>{{ student.register_no }}</td>
+
+        <td>{{ student.name }}</td>
+
+        <td>{{ student.department }}</td>
+
+        <td>{{ student.year }}</td>
+
+        <td>{{ student.section }}</td>
+
+        <td>{{ student.email }}</td>
+      </tr>
+
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

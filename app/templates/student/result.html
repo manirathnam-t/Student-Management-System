@@ -1,0 +1,52 @@
+{% extends "base.html" %} {% block title %} Result Summary {% endblock %} {%
+block content %}
+
+<div class="container mt-4">
+  <div class="card shadow">
+    <div class="card-header bg-success text-white">
+      <h3>🎓 Result Summary</h3>
+    </div>
+
+    <div class="card-body">
+      <table class="table table-bordered">
+        <tr>
+          <th>Total Subjects</th>
+
+          <td>{{ total_subjects }}</td>
+        </tr>
+
+        <tr>
+          <th>Passed Subjects</th>
+
+          <td>{{ passed }}</td>
+        </tr>
+
+        <tr>
+          <th>Failed Subjects</th>
+
+          <td>{{ failed }}</td>
+        </tr>
+
+        <tr>
+          <th>Average Marks</th>
+
+          <td>{{ average }}</td>
+        </tr>
+
+        <tr>
+          <th>Result</th>
+
+          <td>
+            {% if failed == 0 %}
+            <span class="badge bg-success">PASS</span>
+            {% else %}
+            <span class="badge bg-danger">FAIL</span>
+            {% endif %}
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

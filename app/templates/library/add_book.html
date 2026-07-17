@@ -1,0 +1,38 @@
+{% extends "base.html" %} {% block title %}Add Book{% endblock %} {% block
+content %}
+
+<div class="container mt-4">
+  <h2>📚 Add Book</h2>
+
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      {{ form.book_code.label(class="form-label") }} {{
+      form.book_code(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.book_name.label(class="form-label") }} {{
+      form.book_name(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.author.label(class="form-label") }} {{
+      form.author(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.quantity.label(class="form-label") }} {{
+      form.quantity(class="form-control") }}
+    </div>
+
+    {{ form.submit(class="btn btn-success") }}
+
+    <a href="{{ url_for('main.view_books') }}" class="btn btn-secondary">
+      Cancel
+    </a>
+  </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %} {% block title %}College Notices{% endblock %} {%
+block content %}
+
+<div class="container mt-4">
+  <h2 class="mb-4">📢 College Notices</h2>
+
+  {% for notice in notices %}
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h4 class="text-primary">{{ notice.title }}</h4>
+
+      <p>{{ notice.description }}</p>
+
+      <small class="text-muted"> Posted on: {{ notice.notice_date }} </small>
+    </div>
+  </div>
+
+  {% else %}
+
+  <div class="alert alert-info">No notices available.</div>
+
+  {% endfor %}
+</div>
+
+{% endblock %}

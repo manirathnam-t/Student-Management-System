@@ -1,0 +1,83 @@
+{% extends "base.html" %} {% block title %}Attendance Records{% endblock %} {%
+block content %}
+
+<div class="container mt-4">
+  <h2>Attendance Records</h2>
+
+  <form method="GET" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <input
+        type="text"
+        name="search"
+        class="form-control"
+        placeholder="Search Student"
+        value="{{ search }}"
+      />
+    </div>
+
+    <div class="col-md-3">
+      <select name="subject" class="form-select">
+        <option value="">All Subjects</option>
+
+        {% for sub in subjects %}
+
+        <option
+          value="{{ sub.subject_name }}"
+          {% if subject == sub.subject_name %}}selected{%
+          endif
+          %}
+        >
+          {{ sub.subject_name }}
+        </option>
+
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <input
+        type="date"
+        name="date"
+        class="form-control"
+        value="{{ attendance_date }}"
+      />
+    </div>
+
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">Search</button>
+    </div>
+  </form>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Date</th>
+        <th>Student</th>
+        <th>Register No</th>
+        <th>Subject</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for record in records %}
+
+      <tr>
+        <td>{{ record.attendance_date }}</td>
+        <td>{{ record.student.name }}</td>
+        <td>{{ record.student.register_no }}</td>
+        <td>{{ record.subject.subject_name }}</td>
+        <td>{{ record.status }}</td>
+      </tr>
+
+      {% else %}
+
+      <tr>
+        <td colspan="5" class="text-center">No attendance records found.</td>
+      </tr>
+
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

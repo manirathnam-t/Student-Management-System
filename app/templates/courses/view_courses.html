@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Courses{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>Courses</h2>
+
+    <a href="{{ url_for('main.add_course') }}" class="btn btn-success mb-3">
+        ➕ Add Course
+    </a>
+
+    <table class="table table-bordered table-hover">
+
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Course Code</th>
+                <th>Course Name</th>
+                <th>Duration</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for course in courses %}
+
+            <tr>
+
+                <td>{{ course.id }}</td>
+
+                <td>{{ course.course_code }}</td>
+
+                <td>{{ course.course_name }}</td>
+
+                <td>{{ course.duration }} Years</td>
+
+                <td>{{ course.description }}</td>
+
+                <td>
+
+                    <a href="{{ url_for('main.edit_course', id=course.id) }}"
+                       class="btn btn-warning btn-sm">
+                        Edit
+                    </a>
+
+                    <a href="{{ url_for('main.delete_course', id=course.id) }}"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Delete this course?')">
+                        Delete
+                    </a>
+
+                </td>
+
+            </tr>
+
+            {% else %}
+
+            <tr>
+                <td colspan="6" class="text-center">
+                    No Courses Found
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

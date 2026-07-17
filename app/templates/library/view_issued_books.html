@@ -1,0 +1,88 @@
+{% extends "base.html" %} {% block title %}Issued Books{% endblock %} {% block
+content %}
+
+<div class="container mt-4">
+  <h2>📕 Issued Books</h2>
+
+  <a href="{{ url_for('main.issue_book') }}" class="btn btn-success mb-3">
+    ➕ Issue Book
+  </a>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+
+        <th>Student</th>
+
+        <th>Book</th>
+
+        <th>Issue Date</th>
+
+        <th>Return Date</th>
+
+        <th>Status</th>
+
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for issue in books %}
+
+      <tr>
+        <td>{{ issue.id }}</td>
+
+        <td>{{ issue.student.name }}</td>
+
+        <td>{{ issue.book.book_name }}</td>
+
+        <td>{{ issue.issue_date }}</td>
+
+        <td>
+          {% if issue.return_date %} {{ issue.return_date }} {% else %} - {%
+          endif %}
+        </td>
+
+        <td>
+          {% if issue.status == "Issued" %}
+
+          <span class="badge bg-warning"> Issued </span>
+
+          {% else %}
+
+          <span class="badge bg-success"> Returned </span>
+
+          {% endif %}
+        </td>
+
+        <td>
+          {% if issue.status == "Issued" %}
+
+          <a
+            href="{{ url_for('main.return_book', id=issue.id) }}"
+            class="btn btn-primary btn-sm"
+          >
+            Return
+          </a>
+
+          {% else %}
+
+          <span class="text-success"> ✔ Returned </span>
+
+          {% endif %}
+        </td>
+      </tr>
+
+      {% else %}
+
+      <tr>
+        <td colspan="6" class="text-center">No Issued Books</td>
+      </tr>
+
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

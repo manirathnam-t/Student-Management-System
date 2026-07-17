@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block title %}My Marks{% endblock %} {% block
+content %}
+
+<div class="container mt-4">
+  <div class="card shadow">
+    <div class="card-header bg-success text-white">
+      <h3>📝 My Marks</h3>
+    </div>
+
+    <div class="card-body">
+      <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>Subject</th>
+            <th>Internal</th>
+            <th>External</th>
+            <th>Total</th>
+            <th>Grade</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for mark in marks %}
+
+          <tr>
+            <td>{{ mark.subject.subject_name }}</td>
+
+            <td>{{ mark.internal }}</td>
+
+            <td>{{ mark.external }}</td>
+
+            <td>{{ mark.total }}</td>
+
+            <td>{{ mark.grade }}</td>
+          </tr>
+
+          {% else %}
+
+          <tr>
+            <td colspan="5" class="text-center">No marks available.</td>
+          </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

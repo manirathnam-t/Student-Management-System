@@ -1,0 +1,45 @@
+{% extends "base.html" %} {% block title %}Subjects{% endblock %} {% block
+content %}
+
+<div class="container mt-4">
+  <h2>Subjects</h2>
+
+  <a href="{{ url_for('main.add_subject') }}" class="btn btn-success mb-3">
+    ➕ Add Subject
+  </a>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Code</th>
+        <th>Name</th>
+        <th>Semester</th>
+        <th>Credits</th>
+        <th>Department</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for subject in subjects %}
+
+      <tr>
+        <td>{{ subject.id }}</td>
+
+        <td>{{ subject.subject_code }}</td>
+
+        <td>{{ subject.subject_name }}</td>
+
+        <td>{{ subject.semester }}</td>
+
+        <td>{{ subject.credits }}</td>
+
+        <td>{{ subject.department }}</td>
+      </tr>
+
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
