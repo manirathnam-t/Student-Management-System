@@ -2,10 +2,10 @@ from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required
 from .forms import LoginForm
 from .models import User
+from app.extensions import db
 from .extensions import bcrypt
 
 auth = Blueprint("auth", __name__)
-
 @auth.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -15,21 +15,28 @@ def login():
 
         print("Form submitted")
 
-        user = User.query.filter_by(
-            email=form.email.data
-        ).first()
+        email = form.email.data.strip().lower()
+
+        print("Entered Email:", email)
 
         print("All Users:")
 
         for u in User.query.all():
-            print(u.email, u.role)
+            print(f"{u.email} | {u.role}")
+
+        user = User.query.filter(
+            db.func.lower(User.email) == email
+        ).first()
 
         if user:
+
             print("User found:", user.email)
 
             if bcrypt.check_password_hash(user.password, form.password.data):
 
                 login_user(user)
+
+                flash("Login Successful!", "success")
 
                 if user.role == "Admin":
                     return redirect(url_for("main.admin_dashboard"))
@@ -42,14 +49,13 @@ def login():
 
             else:
                 print("Wrong Password")
-                flash("Invalid email or password", "danger")
+                flash("Invalid password", "danger")
 
         else:
             print("User NOT found")
-            flash("Invalid email or password", "danger")
+            flash("User not found", "danger")
 
     return render_template("auth/login.html", form=form)
-
 
 @auth.route("/logout")
 @login_required
