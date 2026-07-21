@@ -34,8 +34,14 @@ content %}
           }}
         </div>
 
-        {{ form.submit(class="btn btn-primary w-100") }}
+        <div class="d-grid">{{ form.submit(class="btn btn-primary") }}</div>
       </form>
+
+      <div class="d-flex gap-2 mt-3">
+        <a href="{{ url_for('main.view_subjects') }}" class="btn btn-secondary">
+          ← Back
+        </a>
+      </div>
     </div>
   </div>
 </div>

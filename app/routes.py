@@ -38,6 +38,9 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from flask import send_file
 from datetime import datetime
+from app.models import Department, Course
+from flask import jsonify
+
 
 
 main = Blueprint("main", __name__)
@@ -143,19 +146,67 @@ def teacher_attendance():
         subjects=subjects,
         today=date.today()
     )
-
-
 @main.route("/students/add", methods=["GET", "POST"])
 @login_required
 def add_student():
 
     form = StudentForm()
 
+    print("\n==============================")
+    print("Request Method:", request.method)
+
+    # -------------------------------
+    # Load Departments
+    # -------------------------------
+    departments = Department.query.order_by(Department.name).all()
+
+    form.department.choices = [
+        (d.id, d.name)
+        for d in departments
+    ]
+
+    # -------------------------------
+    # Load Courses
+    # -------------------------------
+    form.course.choices = []
+
+    if form.department.data:
+        courses = Course.query.filter_by(
+            department_id=form.department.data
+        ).order_by(Course.course_name).all()
+
+        form.course.choices = [
+            (c.id, c.course_name)
+            for c in courses
+        ]
+
+    # -------------------------------
+    # Debug POST
+    # -------------------------------
+    if request.method == "POST":
+        print("POST RECEIVED")
+        print("Form Errors:", form.errors)
+        print("Department:", form.department.data)
+        print("Course:", form.course.data)
+
+    # -------------------------------
+    # Validate Form
+    # -------------------------------
     if form.validate_on_submit():
 
-        # -------------------------------
+        print("FORM VALIDATED")
+
+        # Reload Courses
+        courses = Course.query.filter_by(
+            department_id=form.department.data
+        ).order_by(Course.course_name).all()
+
+        form.course.choices = [
+            (c.id, c.course_name)
+            for c in courses
+        ]
+
         # Check Register Number
-        # -------------------------------
         existing_student = Student.query.filter_by(
             register_no=form.register_no.data
         ).first()
@@ -164,9 +215,7 @@ def add_student():
             flash("Register Number already exists!", "danger")
             return redirect(url_for("main.add_student"))
 
-        # -------------------------------
         # Check Email
-        # -------------------------------
         existing_user = User.query.filter_by(
             email=form.email.data
         ).first()
@@ -175,19 +224,21 @@ def add_student():
             flash("Email already exists!", "danger")
             return redirect(url_for("main.add_student"))
 
-        # -------------------------------
         # Upload Photo
-        # -------------------------------
-        photo = form.photo.data
+        filename = "default.png"
 
-        filename = secure_filename(photo.filename)
+        if form.photo.data:
 
-        upload_path = os.path.join(
-            current_app.config["UPLOAD_FOLDER"],
-            filename
-        )
+            photo = form.photo.data
 
-        photo.save(upload_path)
+            filename = secure_filename(photo.filename)
+
+            photo.save(
+                os.path.join(
+                    current_app.config["UPLOAD_FOLDER"],
+                    filename
+                )
+            )
 
         # -------------------------------
         # Create Student
@@ -195,18 +246,24 @@ def add_student():
         student = Student(
             register_no=form.register_no.data,
             name=form.name.data,
-            department=form.department.data,
-            year=form.year.data,
+            gender=form.gender.data,
+            dob=form.dob.data,
+            department_id=int(form.department.data),
+            course_id=int(form.course.data),
+            year=int(form.year.data),
             section=form.section.data,
             email=form.email.data,
             phone=form.phone.data,
+            address=form.address.data,
             photo=filename
         )
+
+        print("Saving Student...")
 
         db.session.add(student)
 
         # -------------------------------
-        # Create Login Account
+        # Create Login
         # -------------------------------
         hashed_password = bcrypt.generate_password_hash(
             form.password.data
@@ -221,14 +278,22 @@ def add_student():
 
         db.session.add(user)
 
-        # -------------------------------
-        # Save Database
-        # -------------------------------
-        db.session.commit()
+        try:
+            db.session.commit()
+            print("STUDENT SAVED SUCCESSFULLY")
+            flash("Student Added Successfully!", "success")
+            return redirect(url_for("main.view_students"))
 
-        flash("Student Added Successfully!", "success")
+        except Exception as e:
+            db.session.rollback()
+            print("DATABASE ERROR:")
+            print(e)
+            flash(str(e), "danger")
 
-        return redirect(url_for("main.view_students"))
+    else:
+        if request.method == "POST":
+            print("FORM VALIDATION FAILED")
+            print(form.errors)
 
     return render_template(
         "students/add_student.html",
@@ -275,16 +340,23 @@ def edit_student(id):
 
     student = Student.query.get_or_404(id)
 
-    form = StudentForm()
+    form = StudentForm(obj=student)
 
     if form.validate_on_submit():
 
+        student.register_no = form.register_no.data
         student.name = form.name.data
+        student.gender = form.gender.data
+        student.dob = form.dob.data
+        student.department = form.department.data
+        student.course = form.course.data
+        student.year = form.year.data
+        student.section = form.section.data
         student.email = form.email.data
         student.phone = form.phone.data
-        student.department = form.department.data
+        student.address = form.address.data
 
-        # 👇 ADD THIS PART HERE
+        # Update photo if a new one is uploaded
         if form.photo.data:
 
             photo = form.photo.data
@@ -300,8 +372,6 @@ def edit_student(id):
 
             student.photo = filename
 
-        # 👆 END OF ADDED CODE
-
         db.session.commit()
 
         flash("Student Updated Successfully!", "success")
@@ -312,8 +382,6 @@ def edit_student(id):
         "students/add_student.html",
         form=form
     )
-
-
 @main.route("/students/view/<int:id>")
 @login_required
 def view_student(id):
@@ -1191,9 +1259,9 @@ def view_marks():
     return render_template(
         "marks/view_marks.html",
         marks=marks,
-        search=search
+        search=search,
+        teacher=False
     )
-
 @main.route("/marks/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_marks(id):
@@ -1392,14 +1460,24 @@ def add_timetable():
 
     form = TimetableForm()
 
+    form.department.choices = [
+        (d.id, d.name)
+        for d in Department.query.order_by(Department.name).all()
+    ]
+
+    form.course.choices = [
+        (c.id, c.course_name)
+        for c in Course.query.order_by(Course.course_name).all()
+    ]
+
     form.subject.choices = [
-        (subject.id, subject.subject_name)
-        for subject in Subject.query.order_by(Subject.subject_name).all()
+        (s.id, s.subject_name)
+        for s in Subject.query.order_by(Subject.subject_name).all()
     ]
 
     form.teacher.choices = [
-        (teacher.id, teacher.name)
-        for teacher in Teacher.query.order_by(Teacher.name).all()
+        (t.id, t.name)
+        for t in Teacher.query.order_by(Teacher.name).all()
     ]
 
     if form.validate_on_submit():
@@ -1407,6 +1485,10 @@ def add_timetable():
         timetable = Timetable(
             day=form.day.data,
             period=form.period.data,
+            department_id=form.department.data,
+            course_id=form.course.data,
+            year=form.year.data,
+            section=form.section.data,
             subject_id=form.subject.data,
             teacher_id=form.teacher.data,
             classroom=form.classroom.data
@@ -1423,6 +1505,7 @@ def add_timetable():
         "timetable/add_timetable.html",
         form=form
     )
+
 
 @main.route("/teacher/timetable")
 @login_required
@@ -1460,7 +1543,6 @@ def view_timetable():
         timetable_data=timetable_data,
         days=days
     )
-
 @main.route("/timetable/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_timetable(id):
@@ -1469,20 +1551,34 @@ def edit_timetable(id):
 
     form = TimetableForm()
 
+    form.department.choices = [
+        (d.id, d.name)
+        for d in Department.query.order_by(Department.name).all()
+    ]
+
+    form.course.choices = [
+        (c.id, c.course_name)
+        for c in Course.query.order_by(Course.course_name).all()
+    ]
+
     form.subject.choices = [
-        (subject.id, subject.subject_name)
-        for subject in Subject.query.order_by(Subject.subject_name).all()
+        (s.id, s.subject_name)
+        for s in Subject.query.order_by(Subject.subject_name).all()
     ]
 
     form.teacher.choices = [
-        (teacher.id, teacher.name)
-        for teacher in Teacher.query.order_by(Teacher.name).all()
+        (t.id, t.name)
+        for t in Teacher.query.order_by(Teacher.name).all()
     ]
 
     if form.validate_on_submit():
 
         timetable.day = form.day.data
         timetable.period = form.period.data
+        timetable.department_id = form.department.data
+        timetable.course_id = form.course.data
+        timetable.year = form.year.data
+        timetable.section = form.section.data
         timetable.subject_id = form.subject.data
         timetable.teacher_id = form.teacher.data
         timetable.classroom = form.classroom.data
@@ -1495,6 +1591,10 @@ def edit_timetable(id):
 
     form.day.data = timetable.day
     form.period.data = timetable.period
+    form.department.data = timetable.department_id
+    form.course.data = timetable.course_id
+    form.year.data = timetable.year
+    form.section.data = timetable.section
     form.subject.data = timetable.subject_id
     form.teacher.data = timetable.teacher_id
     form.classroom.data = timetable.classroom
@@ -1503,6 +1603,7 @@ def edit_timetable(id):
         "timetable/add_timetable.html",
         form=form
     )
+
 
 @main.route("/timetable/delete/<int:id>")
 @login_required
@@ -1877,6 +1978,28 @@ def teacher_marks():
         subjects=subjects
     )
 
+
+@main.route("/teacher/view-marks")
+@login_required
+def teacher_view_marks():
+
+    search = request.args.get("search", "")
+
+    query = Mark.query
+
+    if search:
+        query = query.join(Student).filter(
+            Student.name.ilike(f"%{search}%")
+        )
+
+    marks = query.order_by(Mark.id.desc()).all()
+
+    return render_template(
+        "marks/view_marks.html",   # use the existing template
+        marks=marks,
+        search=search,
+        teacher=True
+    )
 
 @main.route("/student/marks")
 @login_required
@@ -2340,4 +2463,20 @@ def teacher_profile():
         "teacher/profile.html",
         user=user
     )
+@main.route("/get_courses/<int:department_id>")
+@login_required
+def get_courses(department_id):
 
+    courses = Course.query.filter_by(
+        department_id=department_id
+    ).order_by(Course.course_name).all()
+
+    data = []
+
+    for course in courses:
+        data.append({
+            "id": course.id,
+            "name": course.course_name
+        })
+
+    return jsonify(data)

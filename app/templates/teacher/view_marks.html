@@ -20,11 +20,9 @@
     </div>
   </form>
 
-  {% if not teacher %}
   <a href="{{ url_for('main.add_marks') }}" class="btn btn-success mb-3">
     ➕ Add Marks
   </a>
-  {% endif %}
 
   <table class="table table-bordered table-hover">
     <thead class="table-dark">
@@ -66,8 +64,6 @@
             📄 Result
           </a>
 
-          {% if not teacher %}
-
           <a
             href="{{ url_for('main.edit_marks', id=mark.id) }}"
             class="btn btn-warning btn-sm"
@@ -82,8 +78,6 @@
           >
             🗑 Delete
           </a>
-
-          {% endif %}
         </td>
       </tr>
 
@@ -96,21 +90,10 @@
       {% endfor %}
     </tbody>
   </table>
-
   <div class="mb-3">
-    {% if teacher %}
-
-    <a href="{{ url_for('main.teacher_dashboard') }}" class="btn btn-secondary">
+    <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-secondary">
       ← Back to Dashboard
     </a>
-
-    {% else %}
-
-    <a href="{{ url_for('main.teacher_dashboard') }}" class="btn btn-secondary">
-      ← Back to Dashboard
-    </a>
-
-    {% endif %}
   </div>
 </div>
 

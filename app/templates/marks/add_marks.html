@@ -1,60 +1,50 @@
-{% extends "base.html" %}
-
-{% block title %}Add Marks{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Add Marks{% endblock %} {% block
+content %}
 
 <div class="container mt-4">
+  <h2>Add Student Marks</h2>
 
-    <h2>Add Student Marks</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
 
-    <form method="POST">
+    <div class="mb-3">
+      {{ form.student.label(class="form-label") }} {{
+      form.student(class="form-select") }}
+    </div>
 
-        {{ form.hidden_tag() }}
+    <div class="mb-3">
+      {{ form.subject.label(class="form-label") }} {{
+      form.subject(class="form-select") }}
+    </div>
 
-        <div class="mb-3">
+    <div class="mb-3">
+      {{ form.internal.label(class="form-label") }} {{
+      form.internal(class="form-control") }}
+    </div>
 
-            {{ form.student.label(class="form-label") }}
+    <div class="mb-3">
+      {{ form.external.label(class="form-label") }} {{
+      form.external(class="form-control") }}
+    </div>
 
-            {{ form.student(class="form-select") }}
+    <div class="d-flex gap-2 mt-3">
 
-        </div>
+    {{ form.submit(class="btn btn-success") }}
 
-        <div class="mb-3">
+    <a href="{{ url_for('main.view_marks') }}"
+       class="btn btn-secondary">
+        Cancel
+    </a>
 
-            {{ form.subject.label(class="form-label") }}
+    <a href="{{ url_for('main.admin_dashboard') }}"
+       class="btn btn-primary">
+        ← Back to Dashboard
+    </a>
 
-            {{ form.subject(class="form-select") }}
-
-        </div>
-
-        <div class="mb-3">
-
-            {{ form.internal.label(class="form-label") }}
-
-            {{ form.internal(class="form-control") }}
-
-        </div>
-
-        <div class="mb-3">
-
-            {{ form.external.label(class="form-label") }}
-
-            {{ form.external(class="form-control") }}
-
-        </div>
-
-        {{ form.submit(class="btn btn-success") }}
-
-        <a href="{{ url_for('main.view_marks') }}"
-           class="btn btn-secondary">
-
-            Cancel
-
-        </a>
-
-    </form>
-
+</div>
+  </form>
+ 
+  </div>
 </div>
 
 {% endblock %}

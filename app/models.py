@@ -14,30 +14,89 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(255), nullable=False)
 
     role = db.Column(db.String(20), nullable=False)
-
 class Student(db.Model):
     __tablename__ = "students"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
-    register_no = db.Column(db.String(20), unique=True, nullable=False)
+    register_no = db.Column(
+        db.String(20),
+        unique=True,
+        nullable=False
+    )
 
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(
+        db.String(100),
+        nullable=False
+    )
 
-    department = db.Column(db.String(100), nullable=False)
+    email = db.Column(
+        db.String(120),
+        unique=True,
+        nullable=False
+    )
 
-    year = db.Column(db.Integer, nullable=False)
+    phone = db.Column(
+        db.String(15),
+        nullable=False
+    )
 
-    section = db.Column(db.String(10), nullable=False)
+    gender = db.Column(
+        db.String(20),
+        nullable=False
+    )
 
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    dob = db.Column(
+        db.Date
+    )
 
-    phone = db.Column(db.String(15), nullable=False)
+    department_id = db.Column(
+        db.Integer,
+        db.ForeignKey("department.id"),
+        nullable=False
+    )
 
-    photo = db.Column(db.String(200), default="default.png")
+    course_id = db.Column(
+        db.Integer,
+        db.ForeignKey("courses.id"),
+        nullable=False
+    )
 
+    department = db.relationship(
+        "Department",
+        back_populates="students"
+    )
 
-    
+    course = db.relationship(
+        "Course",
+        back_populates="students"
+    )
+
+    year = db.Column(
+        db.Integer,
+        nullable=False
+    )
+
+    section = db.Column(
+        db.String(10),
+        nullable=False
+    )
+
+    address = db.Column(
+        db.Text
+    )
+
+    photo = db.Column(
+        db.String(200),
+        default="default.png"
+    )
+
+    def __repr__(self):
+        return f"<Student {self.name}>"
+
 class Teacher(db.Model):
     __tablename__ = "teachers"
 
@@ -115,6 +174,7 @@ class Attendance(db.Model):
 
 
 class Department(db.Model):
+    __tablename__ = "department"
 
     id = db.Column(
         db.Integer,
@@ -135,11 +195,25 @@ class Department(db.Model):
         db.Text
     )
 
+    courses = db.relationship(
+        "Course",
+        back_populates="department",
+        cascade="all, delete",
+        lazy=True
+    )
+
+    students = db.relationship(
+        "Student",
+        back_populates="department",
+        cascade="all, delete",
+        lazy=True
+    )
+
     def __repr__(self):
         return f"<Department {self.name}>"
 
-
 class Course(db.Model):
+    __tablename__ = "courses"
 
     id = db.Column(
         db.Integer,
@@ -157,6 +231,12 @@ class Course(db.Model):
         nullable=False
     )
 
+    department_id = db.Column(
+        db.Integer,
+        db.ForeignKey("department.id"),
+        nullable=False
+    )
+
     duration = db.Column(
         db.Integer,
         nullable=False
@@ -166,7 +246,22 @@ class Course(db.Model):
         db.Text
     )
 
-      
+    department = db.relationship(
+        "Department",
+        back_populates="courses"
+    )
+
+    students = db.relationship(
+        "Student",
+        back_populates="course",
+        cascade="all, delete",
+        lazy=True
+    )
+
+    def __repr__(self):
+        return f"<Course {self.course_name}>"
+
+    
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
@@ -253,9 +348,37 @@ class Timetable(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    day = db.Column(db.String(20), nullable=False)
+    day = db.Column(
+        db.String(20),
+        nullable=False
+    )
 
-    period = db.Column(db.String(20), nullable=False)
+    period = db.Column(
+        db.String(20),
+        nullable=False
+    )
+
+    department_id = db.Column(
+        db.Integer,
+        db.ForeignKey("department.id"),
+        nullable=False
+    )
+
+    course_id = db.Column(
+        db.Integer,
+        db.ForeignKey("courses.id"),
+        nullable=False
+    )
+
+    year = db.Column(
+        db.Integer,
+        nullable=False
+    )
+
+    section = db.Column(
+        db.String(10),
+        nullable=False
+    )
 
     subject_id = db.Column(
         db.Integer,
@@ -269,11 +392,17 @@ class Timetable(db.Model):
         nullable=False
     )
 
-    classroom = db.Column(db.String(50))
+    # Store classroom name directly
+    classroom = db.Column(
+        db.String(50),
+        nullable=False
+    )
 
+    department = db.relationship("Department")
+    course = db.relationship("Course")
     subject = db.relationship("Subject")
-
     teacher = db.relationship("Teacher")
+
 
 class Notice(db.Model):
     __tablename__ = "notices"
@@ -337,3 +466,16 @@ class BookIssue(db.Model):
 
     book = db.relationship("Library")
 
+class Classroom(db.Model):
+    __tablename__ = "classrooms"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    room_no = db.Column(db.String(30), unique=True, nullable=False)
+
+    block = db.Column(db.String(50))
+
+    capacity = db.Column(db.Integer)
+
+    def __repr__(self):
+        return f"<Classroom {self.room_no}>"

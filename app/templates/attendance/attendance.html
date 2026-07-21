@@ -56,6 +56,17 @@ content %}
 
     <button class="btn btn-success">Save Attendance</button>
   </form>
+  <a
+    href="{{ url_for('main.view_attendance') }}"
+    class="btn btn-secondary mb-3"
+  >
+    ← Back
+  </a>
+  <div class="mb-3">
+    <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-secondary">
+      ← Back to Dashboard
+    </a>
+  </div>
 </div>
 
 {% endblock %}

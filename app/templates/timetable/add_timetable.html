@@ -6,47 +6,94 @@
 
 <div class="container mt-4">
 
-    <h2>Add Timetable</h2>
+    <div class="card shadow">
 
-    <form method="POST">
-
-        {{ form.hidden_tag() }}
-
-        <div class="mb-3">
-            {{ form.day.label(class="form-label") }}
-            {{ form.day(class="form-select") }}
+        <div class="card-header bg-primary text-white">
+            <h3>Add Timetable</h3>
         </div>
 
-        <div class="mb-3">
-            {{ form.period.label(class="form-label") }}
-            {{ form.period(class="form-select") }}
+        <div class="card-body">
+
+            <form method="POST">
+
+                {{ form.hidden_tag() }}
+
+                <!-- Department -->
+                <div class="mb-3">
+                    {{ form.department.label(class="form-label") }}
+                    {{ form.department(class="form-select") }}
+                </div>
+
+                <!-- Course -->
+                <div class="mb-3">
+                    {{ form.course.label(class="form-label") }}
+                    {{ form.course(class="form-select") }}
+                </div>
+
+                <!-- Year -->
+                <div class="mb-3">
+                    {{ form.year.label(class="form-label") }}
+                    {{ form.year(class="form-select") }}
+                </div>
+
+                <!-- Section -->
+                <div class="mb-3">
+                    {{ form.section.label(class="form-label") }}
+                    {{ form.section(class="form-select") }}
+                </div>
+
+                <!-- Day -->
+                <div class="mb-3">
+                    {{ form.day.label(class="form-label") }}
+                    {{ form.day(class="form-select") }}
+                </div>
+
+                <!-- Period -->
+                <div class="mb-3">
+                    {{ form.period.label(class="form-label") }}
+                    {{ form.period(class="form-select") }}
+                </div>
+
+                <!-- Subject -->
+                <div class="mb-3">
+                    {{ form.subject.label(class="form-label") }}
+                    {{ form.subject(class="form-select") }}
+                </div>
+
+                <!-- Teacher -->
+                <div class="mb-3">
+                    {{ form.teacher.label(class="form-label") }}
+                    {{ form.teacher(class="form-select") }}
+                </div>
+
+                <!-- Classroom -->
+                <div class="mb-3">
+                    {{ form.classroom.label(class="form-label") }}
+                    {{ form.classroom(class="form-select") }}
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex gap-2 mt-4">
+
+                    {{ form.submit(class="btn btn-success") }}
+
+                    <a href="{{ url_for('main.view_timetable') }}"
+                       class="btn btn-secondary">
+                        Cancel
+                    </a>
+
+                    <a href="{{ url_for('main.view_timetable') }}"
+                       class="btn btn-primary">
+                        ← Back
+                    </a>
+
+                </div>
+
+            </form>
+
         </div>
 
-        <div class="mb-3">
-            {{ form.subject.label(class="form-label") }}
-            {{ form.subject(class="form-select") }}
-        </div>
-
-        <div class="mb-3">
-            {{ form.teacher.label(class="form-label") }}
-            {{ form.teacher(class="form-select") }}
-        </div>
-
-        <div class="mb-3">
-            {{ form.classroom.label(class="form-label") }}
-            {{ form.classroom(class="form-control") }}
-        </div>
-
-        {{ form.submit(class="btn btn-success") }}
-
-        <a href="{{ url_for('main.view_timetable') }}"
-           class="btn btn-secondary">
-
-            Cancel
-
-        </a>
-
-    </form>
+    </div>
 
 </div>
 

@@ -58,8 +58,16 @@ content %}
             max="60"
           />
         </div>
+        <div class="d-flex gap-3 mt-4">
+          <button class="btn btn-success">Save Marks</button>
 
-        <button class="btn btn-success">Save Marks</button>
+          <a
+            href="{{ url_for('main.teacher_dashboard') }}"
+            class="btn btn-primary"
+          >
+            🏠 Back to Dashboard
+          </a>
+        </div>
       </form>
     </div>
   </div>

@@ -58,7 +58,29 @@ content %}
           {% else %} {{ form.submit(class="btn btn-success btn-lg") }} {% endif
           %}
         </div>
+        <div class="d-flex gap-3 mt-4">
+          {{ form.submit(class="btn btn-success") }}
+
+          <a
+            href="{{ url_for('main.view_teachers') }}"
+            class="btn btn-secondary"
+          >
+            ← Back
+          </a>
+
+          <a
+            href="{{ url_for('main.admin_dashboard') }}"
+            class="btn btn-primary"
+          >
+            🏠 Dashboard
+          </a>
+        </div>
       </form>
+      <div class="mb-3">
+        <a href="{{ url_for('main.view_teachers') }}" class="btn btn-secondary">
+          ← Back
+        </a>
+      </div>
     </div>
   </div>
 </div>

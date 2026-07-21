@@ -1,52 +1,46 @@
-{% extends "base.html" %}
-
-{% block title %}Add Fee{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Add Fee{% endblock %} {% block
+content %}
 
 <div class="container mt-4">
+  <h2>Add Student Fee</h2>
 
-    <h2>Add Student Fee</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
 
-    <form method="POST">
+    <div class="mb-3">
+      {{ form.student.label(class="form-label") }} {{
+      form.student(class="form-select") }}
+    </div>
 
-        {{ form.hidden_tag() }}
+    <div class="mb-3">
+      {{ form.amount.label(class="form-label") }} {{
+      form.amount(class="form-control") }}
+    </div>
 
-        <div class="mb-3">
+    <div class="mb-3">
+      {{ form.paid.label(class="form-label") }} {{
+      form.paid(class="form-control") }}
+    </div>
 
-            {{ form.student.label(class="form-label") }}
+<div class="d-flex gap-2 mt-3">
 
-            {{ form.student(class="form-select") }}
+    {{ form.submit(class="btn btn-success") }}
 
-        </div>
+    <a
+        href="{{ url_for('main.view_fees') }}"
+        class="btn btn-secondary">
+        ← Back
+    </a>
 
-        <div class="mb-3">
+    <a
+        href="{{ url_for('main.admin_dashboard') }}"
+        class="btn btn-primary">
+        🏠 Back to Dashboard
+    </a>
 
-            {{ form.amount.label(class="form-label") }}
-
-            {{ form.amount(class="form-control") }}
-
-        </div>
-
-        <div class="mb-3">
-
-            {{ form.paid.label(class="form-label") }}
-
-            {{ form.paid(class="form-control") }}
-
-        </div>
-
-        {{ form.submit(class="btn btn-success") }}
-
-        <a href="{{ url_for('main.view_fees') }}"
-           class="btn btn-secondary">
-
-            Cancel
-
-        </a>
-
-    </form>
-
+</div>
+  </form>
+  
 </div>
 
 {% endblock %}

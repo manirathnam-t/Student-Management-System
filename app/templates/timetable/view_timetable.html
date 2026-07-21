@@ -1,121 +1,86 @@
-{% extends "base.html" %}
-
-{% block title %}Weekly Timetable{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Weekly Timetable{% endblock %} {%
+block content %}
 
 <div class="container mt-4">
+  <h2>📅 Weekly Timetable</h2>
 
-    <h2>📅 Weekly Timetable</h2>
+  <a href="{{ url_for('main.add_timetable') }}" class="btn btn-success mb-3">
+    ➕ Add Timetable
+  </a>
 
-    <a href="{{ url_for('main.add_timetable') }}"
-       class="btn btn-success mb-3">
+  <table class="table table-bordered text-center">
+    <thead class="table-dark">
+      <tr>
+        <th>Day</th>
 
-        ➕ Add Timetable
+        <th>Period 1</th>
 
-    </a>
+        <th>Period 2</th>
 
-    <table class="table table-bordered text-center">
+        <th>Period 3</th>
 
-        <thead class="table-dark">
+        <th>Period 4</th>
 
-            <tr>
+        <th>Period 5</th>
 
-                <th>Day</th>
+        <th>Period 6</th>
+      </tr>
+    </thead>
 
-                <th>Period 1</th>
+    <tbody>
+      {% for day in days %}
 
-                <th>Period 2</th>
+      <tr>
+        <th class="table-secondary">{{ day }}</th>
 
-                <th>Period 3</th>
+        {% for p in ["1","2","3","4","5","6"] %}
 
-                <th>Period 4</th>
+        <td>
+          {% if p in timetable_data[day] %}
 
-                <th>Period 5</th>
+          <strong> {{ timetable_data[day][p].subject.subject_name }} </strong>
 
-                <th>Period 6</th>
+          <br />
 
-            </tr>
+          <small> {{ timetable_data[day][p].teacher.name }} </small>
 
-        </thead>
+          <br />
 
-        <tbody>
+          <span class="text-primary">
+            {{ timetable_data[day][p].classroom }}
+          </span>
 
-        {% for day in days %}
+          <br /><br />
 
-        <tr>
+          <a
+            href="{{ url_for('main.edit_timetable', id=timetable_data[day][p].id) }}"
+            class="btn btn-warning btn-sm"
+          >
+            Edit
+          </a>
 
-            <th class="table-secondary">
+          <a
+            href="{{ url_for('main.delete_timetable', id=timetable_data[day][p].id) }}"
+            class="btn btn-danger btn-sm"
+            onclick="return confirm('Delete this timetable?');"
+          >
+            Delete
+          </a>
 
-                {{ day }}
-
-            </th>
-
-            {% for p in ["1","2","3","4","5","6"] %}
-
-            <td>
-
-                {% if p in timetable_data[day] %}
-
-                    <strong>
-
-                        {{ timetable_data[day][p].subject.subject_name }}
-
-                    </strong>
-
-                    <br>
-
-                    <small>
-
-                        {{ timetable_data[day][p].teacher.name }}
-
-                    </small>
-
-                    <br>
-
-                    <span class="text-primary">
-
-                        {{ timetable_data[day][p].classroom }}
-
-                    </span>
-
-                    <br><br>
-
-                    <a
-                    href="{{ url_for('main.edit_timetable', id=timetable_data[day][p].id) }}"
-                    class="btn btn-warning btn-sm">
-
-                    Edit
-
-                    </a>
-
-                    <a
-                    href="{{ url_for('main.delete_timetable', id=timetable_data[day][p].id) }}"
-                    class="btn btn-danger btn-sm"
-                    onclick="return confirm('Delete this timetable?')">
-
-                    Delete
-
-                    </a>
-
-                {% else %}
-
-                    -
-
-                {% endif %}
-
-            </td>
-
-            {% endfor %}
-
-        </tr>
+          {% else %} - {% endif %}
+        </td>
 
         {% endfor %}
+      </tr>
 
-        </tbody>
-
-    </table>
-
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="mb-3">
+    <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-secondary">
+      ← Back to Dashboard
+    </a>
+  </div>
 </div>
 
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block title %} Add Student {% endblock %} {% block
+{% extends "base.html" %} {% block title %}Add Student{% endblock %} {% block
 content %}
 
 <div class="container mt-4">
@@ -8,6 +8,12 @@ content %}
     </div>
 
     <div class="card-body">
+      <div class="mb-3">
+        <a href="{{ url_for('main.view_students') }}" class="btn btn-secondary">
+          ← Back
+        </a>
+      </div>
+
       <form method="POST" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
 
@@ -22,16 +28,30 @@ content %}
           </div>
 
           <div class="col-md-6 mb-3">
-            {{ form.department.label }} {{ form.department(class="form-control")
+            {{ form.gender.label }} {{ form.gender(class="form-select") }}
+          </div>
+
+          <div class="col-md-6 mb-3">
+            {{ form.dob.label }} {{ form.dob(class="form-control", type="date")
             }}
           </div>
 
           <div class="col-md-6 mb-3">
-            {{ form.year.label }} {{ form.year(class="form-control") }}
+            {{ form.department.label }} {{ form.department(class="form-select",
+            id="department") }}
           </div>
 
           <div class="col-md-6 mb-3">
-            {{ form.section.label }} {{ form.section(class="form-control") }}
+            {{ form.course.label }} {{ form.course(class="form-select",
+            id="course") }}
+          </div>
+
+          <div class="col-md-6 mb-3">
+            {{ form.year.label }} {{ form.year(class="form-select") }}
+          </div>
+
+          <div class="col-md-6 mb-3">
+            {{ form.section.label }} {{ form.section(class="form-select") }}
           </div>
 
           <div class="col-md-6 mb-3">
@@ -41,23 +61,74 @@ content %}
           <div class="col-md-6 mb-3">
             {{ form.phone.label }} {{ form.phone(class="form-control") }}
           </div>
+
+          <div class="col-12 mb-3">
+            {{ form.address.label }} {{ form.address(class="form-control",
+            rows="3") }}
+          </div>
+
+          <div class="col-md-6 mb-3">
+            {{ form.password.label }} {{ form.password(class="form-control") }}
+          </div>
+
+          <div class="col-md-6 mb-3">
+            {{ form.photo.label }} {{ form.photo(class="form-control") }} {% for
+            error in form.photo.errors %}
+            <small class="text-danger">{{ error }}</small>
+            {% endfor %}
+          </div>
         </div>
 
-        <div class="col-md-6 mb-3">
-          {{ form.password.label }} {{ form.password(class="form-control") }}
+        <div class="d-grid">
+          {{ form.submit(class="btn btn-success btn-lg") }}
         </div>
-
-        <div class="col-md-6 mb-3">
-          {{ form.photo.label }} {{ form.photo(class="form-control") }} {% for
-          error in form.photo.errors %}
-          <small class="text-danger">{{ error }}</small>
-          {% endfor %}
-        </div>
-
-        <div class="d-grid">{{ form.submit(class="btn btn-success") }}</div>
       </form>
+      <div class="mb-3">
+        <a
+          href="{{ url_for('main.admin_dashboard') }}"
+          class="btn btn-secondary"
+        >
+          ← Back to Dashboard
+        </a>
+      </div>
     </div>
   </div>
 </div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const department = document.getElementById("department");
+    const course = document.getElementById("course");
 
+    department.addEventListener("change", function () {
+      const departmentId = this.value;
+
+      course.innerHTML = '<option value="">Loading...</option>';
+
+      fetch("/get_courses/" + departmentId)
+        .then((response) => response.json())
+        .then((data) => {
+          course.innerHTML = "";
+
+          let defaultOption = document.createElement("option");
+          defaultOption.value = "";
+          defaultOption.text = "-- Select Course --";
+          course.appendChild(defaultOption);
+
+          data.forEach(function (item) {
+            let option = document.createElement("option");
+
+            option.value = item.id;
+            option.text = item.name;
+
+            course.appendChild(option);
+          });
+        })
+        .catch((error) => {
+          console.error(error);
+
+          course.innerHTML = '<option value="">Error Loading Courses</option>';
+        });
+    });
+  });
+</script>
 {% endblock %}

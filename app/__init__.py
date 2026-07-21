@@ -12,7 +12,7 @@ def create_app():
 
     app = Flask(__name__)
 
-    # Load configuration from config.py
+    # Load configuration
     app.config.from_object(Config)
 
     # Fix Render PostgreSQL URL if needed
@@ -25,7 +25,19 @@ def create_app():
             1
         )
 
-    # Upload folder
+    # -------------------------------
+    # SQLAlchemy Engine Options
+    # Helps prevent Render database
+    # connection timeout issues
+    # -------------------------------
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300
+    }
+
+    # -------------------------------
+    # Upload Folder
+    # -------------------------------
     app.config["UPLOAD_FOLDER"] = os.path.join(
         app.root_path,
         "static",
@@ -33,18 +45,24 @@ def create_app():
         "students"
     )
 
-    # Initialize extensions
+    # -------------------------------
+    # Initialize Extensions
+    # -------------------------------
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
 
     login_manager.login_view = "auth.login"
 
-    # Register blueprints
+    # -------------------------------
+    # Register Blueprints
+    # -------------------------------
     app.register_blueprint(main)
     app.register_blueprint(auth)
 
-    # Create tables
+    # -------------------------------
+    # Create Database Tables
+    # -------------------------------
     with app.app_context():
         db.create_all()
 
