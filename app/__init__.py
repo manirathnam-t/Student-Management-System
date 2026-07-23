@@ -28,6 +28,12 @@ def create_app():
         secure=True
     )
 
+    print("=" * 50)
+    print("Cloud Name :", app.config.get("CLOUDINARY_CLOUD_NAME"))
+    print("API Key    :", app.config.get("CLOUDINARY_API_KEY"))
+    print("API Secret :", app.config.get("CLOUDINARY_API_SECRET"))
+    print("=" * 50)
+
     # -------------------------------
     # Fix Render PostgreSQL URL
     # -------------------------------

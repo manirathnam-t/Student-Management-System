@@ -239,30 +239,45 @@ def add_student():
 
         if form.photo.data and form.photo.data.filename != "":
 
+            print("=" * 60)
+            print("Photo Object :", form.photo.data)
+            print("Photo Type   :", type(form.photo.data))
+            print("Filename     :", form.photo.data.filename)
+            print("Content-Type :", form.photo.data.content_type)
+            print("=" * 60)
+
             try:
 
-                print("Uploading:", form.photo.data.filename)
+                form.photo.data.stream.seek(0)
 
                 upload_result = cloudinary.uploader.upload(
-                    form.photo.data,
-                    folder="students"
+                    form.photo.data.stream,
+                    folder="students",
+                    resource_type="image"
                 )
 
                 filename = upload_result["secure_url"]
 
-                print("Upload Success")
-                print(filename)
+                print("=" * 60)
+                print("UPLOAD SUCCESS")
+                print(upload_result)
+                print("=" * 60)
 
             except Exception as e:
 
-                print("Cloudinary Error:")
+                print("=" * 60)
+                print("CLOUDINARY ERROR")
+                print(type(e))
                 print(e)
+                print("=" * 60)
 
                 filename = "default.png"
 
         else:
 
-            print("No image selected")
+            print("=" * 60)
+            print("NO IMAGE SELECTED")
+            print("=" * 60)
 
         # -------------------------------
         # Create Student
@@ -274,7 +289,7 @@ def add_student():
             dob=form.dob.data,
             department_id=form.department.data,
             course_id=form.course.data,
-            year=form.year.data,
+            year=int(form.year.data),
             section=form.section.data,
             email=form.email.data,
             phone=form.phone.data,
@@ -285,7 +300,7 @@ def add_student():
         db.session.add(student)
 
         # -------------------------------
-        # Create Login
+        # Create Student Login
         # -------------------------------
         hashed_password = bcrypt.generate_password_hash(
             form.password.data
@@ -309,7 +324,9 @@ def add_student():
                 "success"
             )
 
-            return redirect(url_for("main.view_students"))
+            return redirect(
+                url_for("main.view_students")
+            )
 
         except Exception as e:
 
