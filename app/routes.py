@@ -41,10 +41,21 @@ from datetime import datetime
 from app.models import Department, Course
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 
 
 
 main = Blueprint("main", __name__)
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True
+)
 
 
 @main.route("/")
@@ -172,12 +183,14 @@ def add_student():
     ]
 
     if form.department.data and int(form.department.data) != 0:
+
         courses = Course.query.filter_by(
             department_id=form.department.data
         ).order_by(Course.course_name).all()
 
         form.course.choices += [
-            (c.id, c.course_name) for c in courses
+            (c.id, c.course_name)
+            for c in courses
         ]
 
     # -------------------------------
@@ -185,7 +198,7 @@ def add_student():
     # -------------------------------
     if form.validate_on_submit():
 
-        # Reload courses after POST
+        # Reload Courses
         courses = Course.query.filter_by(
             department_id=form.department.data
         ).order_by(Course.course_name).all()
@@ -193,7 +206,8 @@ def add_student():
         form.course.choices = [
             (0, "-- Select Course --")
         ] + [
-            (c.id, c.course_name) for c in courses
+            (c.id, c.course_name)
+            for c in courses
         ]
 
         # -------------------------------
@@ -214,8 +228,6 @@ def add_student():
             email=form.email.data
         ).first()
 
-        print("Existing User:", existing_user)
-
         if existing_user:
             flash("Email already exists!", "danger")
             return redirect(url_for("main.add_student"))
@@ -226,15 +238,22 @@ def add_student():
         filename = "default.png"
 
         if form.photo.data:
-            photo = form.photo.data
-            filename = secure_filename(photo.filename)
 
-            photo.save(
-                os.path.join(
-                    current_app.config["UPLOAD_FOLDER"],
-                    filename
+            try:
+
+                upload_result = cloudinary.uploader.upload(
+                    form.photo.data,
+                    folder="students",
+                    resource_type="image"
                 )
-            )
+
+                filename = upload_result["secure_url"]
+
+            except Exception as e:
+
+                print("Cloudinary Upload Error:", e)
+
+                filename = "default.png"
 
         # -------------------------------
         # Create Student
@@ -273,19 +292,31 @@ def add_student():
         db.session.add(user)
 
         try:
+
             db.session.commit()
-            flash("Student Added Successfully!", "success")
-            return redirect(url_for("main.view_students"))
+
+            flash(
+                "Student Added Successfully!",
+                "success"
+            )
+
+            return redirect(
+                url_for("main.view_students")
+            )
 
         except Exception as e:
+
             db.session.rollback()
+
             print(e)
+
             flash(str(e), "danger")
 
     return render_template(
         "students/add_student.html",
         form=form
     )
+
 @main.route("/students")
 @login_required
 def view_students():
@@ -340,7 +371,7 @@ def edit_student(id):
     form = StudentForm(obj=student)
 
     # -------------------------
-    # Load Department dropdown
+    # Load Department Dropdown
     # -------------------------
     form.department.choices = [
         (d.id, d.name)
@@ -348,7 +379,7 @@ def edit_student(id):
     ]
 
     # -------------------------
-    # Load Course dropdown
+    # Load Course Dropdown
     # -------------------------
     if request.method == "GET":
 
@@ -362,6 +393,10 @@ def edit_student(id):
         ]
 
         form.course.data = student.course_id
+
+        form.year.data = str(student.year)
+
+        form.section.data = student.section
 
     else:
 
@@ -382,36 +417,63 @@ def edit_student(id):
         student.gender = form.gender.data
         student.dob = form.dob.data
 
-        # IMPORTANT
         student.department_id = form.department.data
         student.course_id = form.course.data
 
         student.year = int(form.year.data)
         student.section = form.section.data
+
         student.email = form.email.data
         student.phone = form.phone.data
         student.address = form.address.data
 
-        # Update photo
+        # -------------------------
+        # Upload New Photo to Cloudinary
+        # -------------------------
         if form.photo.data:
 
-            photo = form.photo.data
-            filename = secure_filename(photo.filename)
+            try:
 
-            photo.save(
-                os.path.join(
-                    current_app.config["UPLOAD_FOLDER"],
-                    filename
+                upload_result = cloudinary.uploader.upload(
+                    form.photo.data,
+                    folder="students",
+                    resource_type="image"
                 )
+
+                student.photo = upload_result["secure_url"]
+
+            except Exception as e:
+
+                print("Cloudinary Upload Error:", e)
+
+                flash(
+                    "Photo upload failed. Old photo is retained.",
+                    "warning"
+                )
+
+        try:
+
+            db.session.commit()
+
+            flash(
+                "Student Updated Successfully!",
+                "success"
             )
 
-            student.photo = filename
+            return redirect(
+                url_for("main.view_students")
+            )
 
-        db.session.commit()
+        except Exception as e:
 
-        flash("Student Updated Successfully!", "success")
+            db.session.rollback()
 
-        return redirect(url_for("main.view_students"))
+            print(e)
+
+            flash(
+                "Error updating student.",
+                "danger"
+            )
 
     return render_template(
         "students/add_student.html",

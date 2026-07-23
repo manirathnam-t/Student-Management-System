@@ -1,7 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Student Profile{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Student Profile{% endblock %} {%
+block content %}
 
 <div class="container mt-4">
   <div class="card shadow-lg border-0">
@@ -10,18 +8,30 @@
     </div>
 
     <div class="card-body">
-
       <!-- Profile Picture -->
       <div class="text-center mb-4">
+        {% if student.photo.startswith("http") %}
+
         <img
-          src="{{ url_for('static', filename='uploads/students/' ~ student.photo) }}"
-          class="profile-image"
-          alt="Profile Picture"
+          src="{{ student.photo }}"
+          class="img-thumbnail mb-3"
+          width="180"
+          height="180"
         />
+
+        {% else %}
+
+        <img
+          src="{{ url_for('static', filename='uploads/profile_pics/' + student.photo) }}"
+          class="img-thumbnail mb-3"
+          width="180"
+          height="180"
+        />
+
+        {% endif %}
       </div>
 
       <form method="POST">
-
         <div class="mb-3">
           <label class="form-label">Name</label>
           <input
@@ -29,7 +39,7 @@
             class="form-control"
             value="{{ student.name }}"
             readonly
-          >
+          />
         </div>
 
         <div class="mb-3">
@@ -39,7 +49,7 @@
             class="form-control"
             value="{{ student.register_no }}"
             readonly
-          >
+          />
         </div>
 
         <div class="mb-3">
@@ -49,7 +59,7 @@
             class="form-control"
             value="{{ student.department.name }}"
             readonly
-          >
+          />
         </div>
 
         <div class="mb-3">
@@ -59,7 +69,7 @@
             name="email"
             class="form-control"
             value="{{ student.email }}"
-          >
+          />
         </div>
 
         <div class="mb-3">
@@ -69,7 +79,7 @@
             name="phone"
             class="form-control"
             value="{{ student.phone }}"
-          >
+          />
         </div>
 
         <div class="d-flex gap-3 mt-4">
@@ -84,9 +94,7 @@
             ← Back
           </a>
         </div>
-
       </form>
-
     </div>
   </div>
 </div>
