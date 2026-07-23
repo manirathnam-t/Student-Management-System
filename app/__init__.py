@@ -1,4 +1,5 @@
 import os
+import cloudinary
 
 from flask import Flask
 
@@ -12,10 +13,24 @@ def create_app():
 
     app = Flask(__name__)
 
-    # Load configuration
+    # -------------------------------
+    # Load Config
+    # -------------------------------
     app.config.from_object(Config)
 
-    # Fix Render PostgreSQL URL if needed
+    # -------------------------------
+    # Configure Cloudinary
+    # -------------------------------
+    cloudinary.config(
+        cloud_name=app.config["CLOUDINARY_CLOUD_NAME"],
+        api_key=app.config["CLOUDINARY_API_KEY"],
+        api_secret=app.config["CLOUDINARY_API_SECRET"],
+        secure=True
+    )
+
+    # -------------------------------
+    # Fix Render PostgreSQL URL
+    # -------------------------------
     database_url = app.config["SQLALCHEMY_DATABASE_URI"]
 
     if database_url and database_url.startswith("postgres://"):
@@ -26,9 +41,7 @@ def create_app():
         )
 
     # -------------------------------
-    # SQLAlchemy Engine Options
-    # Helps prevent Render database
-    # connection timeout issues
+    # SQLAlchemy
     # -------------------------------
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "pool_pre_ping": True,
@@ -36,7 +49,7 @@ def create_app():
     }
 
     # -------------------------------
-    # Upload Folder
+    # Local Upload Folder
     # -------------------------------
     app.config["UPLOAD_FOLDER"] = os.path.join(
         app.root_path,
@@ -61,7 +74,7 @@ def create_app():
     app.register_blueprint(auth)
 
     # -------------------------------
-    # Create Database Tables
+    # Create Tables
     # -------------------------------
     with app.app_context():
         db.create_all()
