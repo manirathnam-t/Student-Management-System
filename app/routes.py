@@ -233,27 +233,36 @@ def add_student():
             return redirect(url_for("main.add_student"))
 
         # -------------------------------
-        # Upload Photo
+        # Upload Photo to Cloudinary
         # -------------------------------
         filename = "default.png"
 
-        if form.photo.data:
+        if form.photo.data and form.photo.data.filename != "":
 
             try:
 
+                print("Uploading:", form.photo.data.filename)
+
                 upload_result = cloudinary.uploader.upload(
                     form.photo.data,
-                    folder="students",
-                    resource_type="image"
+                    folder="students"
                 )
 
                 filename = upload_result["secure_url"]
 
+                print("Upload Success")
+                print(filename)
+
             except Exception as e:
 
-                print("Cloudinary Upload Error:", e)
+                print("Cloudinary Error:")
+                print(e)
 
                 filename = "default.png"
+
+        else:
+
+            print("No image selected")
 
         # -------------------------------
         # Create Student
@@ -300,9 +309,7 @@ def add_student():
                 "success"
             )
 
-            return redirect(
-                url_for("main.view_students")
-            )
+            return redirect(url_for("main.view_students"))
 
         except Exception as e:
 
