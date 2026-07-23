@@ -22,6 +22,11 @@ content %}
         </div>
 
         <div class="mb-3">
+          {{ form.department.label(class="form-label") }} {{
+          form.department(class="form-select") }}
+        </div>
+
+        <div class="mb-3">
           {{ form.duration.label(class="form-label") }} {{
           form.duration(class="form-control") }}
         </div>
@@ -31,8 +36,7 @@ content %}
           form.description(class="form-control", rows="4") }}
         </div>
 
-        <!-- Buttons -->
-        <div class="d-flex gap-2 mt-3">
+        <div class="d-flex gap-2 mt-4">
           {{ form.submit(class="btn btn-success") }}
 
           <a

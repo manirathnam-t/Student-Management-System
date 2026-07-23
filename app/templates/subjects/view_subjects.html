@@ -17,6 +17,7 @@ content %}
         <th>Semester</th>
         <th>Credits</th>
         <th>Department</th>
+        <th width="170">Action</th>
       </tr>
     </thead>
 
@@ -24,7 +25,7 @@ content %}
       {% for subject in subjects %}
 
       <tr>
-        <td>{{ subject.id }}</td>
+        <td>{{ loop.index }}</td>
 
         <td>{{ subject.subject_code }}</td>
 
@@ -35,6 +36,23 @@ content %}
         <td>{{ subject.credits }}</td>
 
         <td>{{ subject.department }}</td>
+
+        <td>
+          <a
+            href="{{ url_for('main.edit_subject', id=subject.id) }}"
+            class="btn btn-warning btn-sm"
+          >
+            Edit
+          </a>
+
+          <a
+            href="{{ url_for('main.delete_subject', id=subject.id) }}"
+            class="btn btn-danger btn-sm"
+            onclick="return confirm('Delete this subject?');"
+          >
+            Delete
+          </a>
+        </td>
       </tr>
 
       {% endfor %}

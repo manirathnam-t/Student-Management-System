@@ -1,45 +1,128 @@
-{% extends "base.html" %} {% block title %}Teacher Timetable{% endblock %} {%
-block content %}
+{% extends "base.html" %}
 
-<div class="container mt-4">
-  <h2 class="mb-4">📅 My Timetable</h2>
+{% block title %}
+Teacher Timetable
+{% endblock %}
 
-  <table class="table table-bordered table-striped">
-    <thead class="table-primary">
-      <tr>
-        <th>Day</th>
-        <th>Period</th>
-        <th>Subject</th>
-        <th>Teacher</th>
-        <th>Classroom</th>
-      </tr>
-    </thead>
+{% block content %}
 
-    <tbody>
-      {% for row in timetable %}
+<div class="container-fluid mt-4">
 
-      <tr>
-        <td>{{ row.day }}</td>
-        <td>{{ row.period }}</td>
-        <td>{{ row.subject.subject_name }}</td>
-        <td>{{ row.teacher.name }}</td>
-        <td>{{ row.classroom }}</td>
-      </tr>
+    <div class="card shadow">
 
-      {% else %}
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">📅 My Weekly Timetable</h3>
+        </div>
 
-      <tr>
-        <td colspan="5" class="text-center text-muted">
-          No timetable available.
-        </td>
-      </tr>
+        <div class="card-body">
 
-      {% endfor %}
-    </tbody>
-  </table>
-  <div class="d-flex gap-3 mt-4">
-    <a href="javascript:history.back()" class="btn btn-secondary"> ← Back </a>
-  </div>
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover text-center align-middle">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th style="width:120px;">
+                                Period
+                            </th>
+
+                            {% for day in days %}
+                            <th>{{ day }}</th>
+                            {% endfor %}
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for period in periods %}
+
+                        <tr>
+
+                            <th class="table-secondary">
+                                Period {{ period }}
+                            </th>
+
+                            {% for day in days %}
+
+                            {% set item = timetable_grid[period][day] %}
+
+                            <td style="min-width:180px;height:120px;">
+
+                                {% if item %}
+
+                                <div class="card border-success shadow-sm">
+
+                                    <div class="card-body p-2">
+
+                                        <h6 class="text-primary mb-2">
+                                            {{ item.subject.subject_name }}
+                                        </h6>
+
+                                        <small>
+
+                                            🏫 {{ item.classroom }}
+
+                                            <br>
+
+                                            {{ item.department.name }}
+
+                                            <br>
+
+                                            {{ item.course.course_name }}
+
+                                            <br>
+
+                                            Year {{ item.year }}
+
+                                            <br>
+
+                                            Section {{ item.section }}
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                                {% else %}
+
+                                <span class="text-muted">-</span>
+
+                                {% endif %}
+
+                            </td>
+
+                            {% endfor %}
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="mt-3">
+
+                <a href="{{ url_for('main.teacher_dashboard') }}"
+                   class="btn btn-secondary">
+
+                    ← Back
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
 {% endblock %}

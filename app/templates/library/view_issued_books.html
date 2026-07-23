@@ -31,7 +31,7 @@ content %}
       {% for issue in books %}
 
       <tr>
-        <td>{{ issue.id }}</td>
+        <td>{{ loop.index }}</td>
 
         <td>{{ issue.student.name }}</td>
 

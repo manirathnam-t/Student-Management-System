@@ -133,30 +133,45 @@ class StudentForm(FlaskForm):
     
 class TeacherForm(FlaskForm):
 
-    employee_id = StringField("Employee ID", validators=[DataRequired()])
+    employee_id = StringField(
+        "Employee ID",
+        validators=[DataRequired()]
+    )
 
-    name = StringField("Teacher Name", validators=[DataRequired()])
+    name = StringField(
+        "Teacher Name",
+        validators=[DataRequired()]
+    )
 
-    department = StringField("Department", validators=[DataRequired()])
+    department = SelectField(
+        "Department",
+        choices=[],
+        validators=[DataRequired()]
+    )
 
-    subject = StringField("Subject", validators=[DataRequired()])
+    subject = SelectField(
+        "Subject",
+        choices=[],
+        validators=[DataRequired()]
+    )
 
-    email = StringField("Email", validators=[
-        DataRequired(),
-        Email()
-    ])
+    email = StringField(
+        "Email",
+        validators=[DataRequired(), Email()]
+    )
 
-    phone = StringField("Phone", validators=[DataRequired()])
+    phone = StringField(
+        "Phone",
+        validators=[DataRequired()]
+    )
 
     password = PasswordField(
         "Password",
-        validators=[
-            DataRequired(),
-            Length(min=6)
-        ]
+        validators=[DataRequired()]
     )
 
-    submit = SubmitField("Add Teacher")
+    submit = SubmitField("Save Teacher")
+
 class DepartmentForm(FlaskForm):
 
     name = StringField(
@@ -173,6 +188,8 @@ class DepartmentForm(FlaskForm):
     )
 
     submit = SubmitField("Save Department")
+
+
 
 class SubjectForm(FlaskForm):
 
@@ -193,16 +210,16 @@ class SubjectForm(FlaskForm):
 
     credits = IntegerField(
         "Credits",
-        validators=[DataRequired()]
+        default=3
     )
 
-    department = StringField(
+    department = SelectField(
         "Department",
+        coerce=int,
         validators=[DataRequired()]
     )
 
     submit = SubmitField("Save Subject")
-
 class AttendanceForm(FlaskForm):
 
     subject = SelectField(
@@ -225,6 +242,13 @@ class CourseForm(FlaskForm):
 
     course_name = StringField(
         "Course Name",
+        validators=[DataRequired()]
+    )
+
+    department = SelectField(
+        "Department",
+        coerce=int,
+        choices=[],
         validators=[DataRequired()]
     )
 
@@ -295,6 +319,11 @@ class FeeForm(FlaskForm):
 
 
 
+from flask_wtf import FlaskForm
+from wtforms import SelectField, SubmitField
+from wtforms.validators import DataRequired
+
+
 class TimetableForm(FlaskForm):
 
     day = SelectField(
@@ -304,8 +333,10 @@ class TimetableForm(FlaskForm):
             ("Tuesday", "Tuesday"),
             ("Wednesday", "Wednesday"),
             ("Thursday", "Thursday"),
-            ("Friday", "Friday")
-        ]
+            ("Friday", "Friday"),
+            ("Saturday", "Saturday")
+        ],
+        validators=[DataRequired()]
     )
 
     period = SelectField(
@@ -316,18 +347,23 @@ class TimetableForm(FlaskForm):
             ("3", "Period 3"),
             ("4", "Period 4"),
             ("5", "Period 5"),
-            ("6", "Period 6")
-        ]
+            ("6", "Period 6"),
+            ("7", "Period 7"),
+            ("8", "Period 8")
+        ],
+        validators=[DataRequired()]
     )
 
     department = SelectField(
         "Department",
-        coerce=int
+        coerce=int,
+        validators=[DataRequired()]
     )
 
     course = SelectField(
         "Course",
-        coerce=int
+        coerce=int,
+        validators=[DataRequired()]
     )
 
     year = SelectField(
@@ -338,7 +374,8 @@ class TimetableForm(FlaskForm):
             (3, "III Year"),
             (4, "IV Year")
         ],
-        coerce=int
+        coerce=int,
+        validators=[DataRequired()]
     )
 
     section = SelectField(
@@ -347,17 +384,20 @@ class TimetableForm(FlaskForm):
             ("A", "A"),
             ("B", "B"),
             ("C", "C")
-        ]
+        ],
+        validators=[DataRequired()]
     )
 
     subject = SelectField(
         "Subject",
-        coerce=int
+        coerce=int,
+        validators=[DataRequired()]
     )
 
     teacher = SelectField(
         "Teacher",
-        coerce=int
+        coerce=int,
+        validators=[DataRequired()]
     )
 
     classroom = SelectField(
@@ -370,13 +410,14 @@ class TimetableForm(FlaskForm):
             ("Lab 1", "Lab 1"),
             ("Lab 2", "Lab 2"),
             ("Lab 3", "Lab 3"),
+            ("Lab 4", "Lab 4"),
             ("Seminar Hall", "Seminar Hall")
-        ]
+        ],
+        validators=[DataRequired()]
     )
 
     submit = SubmitField("Save Timetable")
 
-        
 class NoticeForm(FlaskForm):
 
     title = StringField(

@@ -1,88 +1,172 @@
-{% extends "base.html" %} {% block title %}Add Teacher{% endblock %} {% block
-content %}
+{% extends "base.html" %}
+{% block title %}Add Teacher{% endblock %}
+
+{% block content %}
 
 <div class="container mt-4">
-  <div class="card shadow">
-    <div class="card-header bg-success text-white">
-      <h3>👨‍🏫 Add Teacher</h3>
+    <div class="card shadow">
+
+        <div class="card-header bg-success text-white">
+            <h3>👨‍🏫 Add Teacher</h3>
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST">
+
+                {{ form.hidden_tag() }}
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.employee_id.label(class="form-label") }}
+                        {{ form.employee_id(class="form-control") }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.department.label(class="form-label") }}
+                        {{ form.department(class="form-select", id="department") }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.subject.label(class="form-label") }}
+                        {{ form.subject(class="form-select", id="subject") }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control") }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.phone.label(class="form-label") }}
+                        {{ form.phone(class="form-control") }}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        {{ form.password.label(class="form-label") }}
+                        {{ form.password(class="form-control", placeholder="Enter Login Password") }}
+                    </div>
+
+                </div>
+
+                <div class="d-grid mt-3">
+
+                    {% if request.endpoint == "main.edit_teacher" %}
+
+                        <button class="btn btn-warning btn-lg">
+                            ✏️ Update Teacher
+                        </button>
+
+                    {% else %}
+
+                        {{ form.submit(class="btn btn-success btn-lg") }}
+
+                    {% endif %}
+
+                </div>
+
+                <div class="d-flex gap-3 mt-4">
+
+                    <a href="{{ url_for('main.view_teachers') }}"
+                       class="btn btn-secondary">
+                        ← Back
+                    </a>
+
+                    <a href="{{ url_for('main.admin_dashboard') }}"
+                       class="btn btn-primary">
+                        🏠 Dashboard
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
     </div>
-
-    <div class="card-body">
-      <form method="POST">
-        {{ form.hidden_tag() }}
-
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            {{ form.employee_id.label(class="form-label") }} {{
-            form.employee_id(class="form-control") }}
-          </div>
-
-          <div class="col-md-6 mb-3">
-            {{ form.name.label(class="form-label") }} {{
-            form.name(class="form-control") }}
-          </div>
-
-          <div class="col-md-6 mb-3">
-            {{ form.department.label(class="form-label") }} {{
-            form.department(class="form-control") }}
-          </div>
-
-          <div class="col-md-6 mb-3">
-            {{ form.subject.label(class="form-label") }} {{
-            form.subject(class="form-control") }}
-          </div>
-
-          <div class="col-md-6 mb-3">
-            {{ form.email.label(class="form-label") }} {{
-            form.email(class="form-control") }}
-          </div>
-
-          <div class="col-md-6 mb-3">
-            {{ form.phone.label(class="form-label") }} {{
-            form.phone(class="form-control") }}
-          </div>
-
-          <!-- NEW PASSWORD FIELD -->
-          <div class="col-md-6 mb-3">
-            {{ form.password.label(class="form-label") }} {{
-            form.password(class="form-control", placeholder="Enter Login
-            Password") }}
-          </div>
-        </div>
-
-        <div class="d-grid mt-3">
-          {% if request.endpoint == "main.edit_teacher" %}
-
-          <button class="btn btn-warning btn-lg">✏️ Update Teacher</button>
-
-          {% else %} {{ form.submit(class="btn btn-success btn-lg") }} {% endif
-          %}
-        </div>
-        <div class="d-flex gap-3 mt-4">
-          {{ form.submit(class="btn btn-success") }}
-
-          <a
-            href="{{ url_for('main.view_teachers') }}"
-            class="btn btn-secondary"
-          >
-            ← Back
-          </a>
-
-          <a
-            href="{{ url_for('main.admin_dashboard') }}"
-            class="btn btn-primary"
-          >
-            🏠 Dashboard
-          </a>
-        </div>
-      </form>
-      <div class="mb-3">
-        <a href="{{ url_for('main.view_teachers') }}" class="btn btn-secondary">
-          ← Back
-        </a>
-      </div>
-    </div>
-  </div>
 </div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    const department = document.getElementById("department");
+    const subject = document.getElementById("subject");
+
+    function loadSubjects(departmentId, selectedSubject=""){
+
+        if(departmentId==""){
+
+            subject.innerHTML =
+                '<option value="">-- Select Subject --</option>';
+
+            subject.disabled = true;
+
+            return;
+        }
+
+        fetch("/get_subjects/" + departmentId)
+
+        .then(response => response.json())
+
+        .then(data =>{
+
+            subject.innerHTML =
+                '<option value="">-- Select Subject --</option>';
+
+            data.forEach(function(item){
+
+                let selected =
+                    item.name === selectedSubject ? "selected" : "";
+
+                subject.innerHTML +=
+                `<option value="${item.name}" ${selected}>
+                    ${item.name}
+                </option>`;
+
+            });
+
+            subject.disabled = false;
+
+        })
+
+        .catch(error =>{
+
+            console.log(error);
+
+            subject.innerHTML =
+                '<option value="">No Subjects Found</option>';
+
+            subject.disabled = true;
+
+        });
+
+    }
+
+    department.addEventListener("change", function(){
+
+        loadSubjects(this.value);
+
+    });
+
+    // Works for Edit Teacher page
+    if(department.value){
+
+        loadSubjects(
+            department.value,
+            "{{ form.subject.data if form.subject.data else '' }}"
+        );
+
+    }
+
+});
+
+</script>
 
 {% endblock %}

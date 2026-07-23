@@ -40,6 +40,7 @@ from flask import send_file
 from datetime import datetime
 from app.models import Department, Course
 from flask import jsonify
+from sqlalchemy.exc import IntegrityError
 
 
 
@@ -152,61 +153,52 @@ def add_student():
 
     form = StudentForm()
 
-    print("\n==============================")
-    print("Request Method:", request.method)
-
     # -------------------------------
     # Load Departments
     # -------------------------------
     departments = Department.query.order_by(Department.name).all()
 
     form.department.choices = [
-        (d.id, d.name)
-        for d in departments
+        (0, "-- Select Department --")
+    ] + [
+        (d.id, d.name) for d in departments
     ]
 
     # -------------------------------
     # Load Courses
     # -------------------------------
-    form.course.choices = []
+    form.course.choices = [
+        (0, "-- Select Course --")
+    ]
 
-    if form.department.data:
+    if form.department.data and int(form.department.data) != 0:
         courses = Course.query.filter_by(
             department_id=form.department.data
         ).order_by(Course.course_name).all()
 
-        form.course.choices = [
-            (c.id, c.course_name)
-            for c in courses
+        form.course.choices += [
+            (c.id, c.course_name) for c in courses
         ]
 
     # -------------------------------
-    # Debug POST
-    # -------------------------------
-    if request.method == "POST":
-        print("POST RECEIVED")
-        print("Form Errors:", form.errors)
-        print("Department:", form.department.data)
-        print("Course:", form.course.data)
-
-    # -------------------------------
-    # Validate Form
+    # Submit
     # -------------------------------
     if form.validate_on_submit():
 
-        print("FORM VALIDATED")
-
-        # Reload Courses
+        # Reload courses after POST
         courses = Course.query.filter_by(
             department_id=form.department.data
         ).order_by(Course.course_name).all()
 
         form.course.choices = [
-            (c.id, c.course_name)
-            for c in courses
+            (0, "-- Select Course --")
+        ] + [
+            (c.id, c.course_name) for c in courses
         ]
 
+        # -------------------------------
         # Check Register Number
+        # -------------------------------
         existing_student = Student.query.filter_by(
             register_no=form.register_no.data
         ).first()
@@ -215,22 +207,26 @@ def add_student():
             flash("Register Number already exists!", "danger")
             return redirect(url_for("main.add_student"))
 
+        # -------------------------------
         # Check Email
+        # -------------------------------
         existing_user = User.query.filter_by(
             email=form.email.data
         ).first()
+
+        print("Existing User:", existing_user)
 
         if existing_user:
             flash("Email already exists!", "danger")
             return redirect(url_for("main.add_student"))
 
+        # -------------------------------
         # Upload Photo
+        # -------------------------------
         filename = "default.png"
 
         if form.photo.data:
-
             photo = form.photo.data
-
             filename = secure_filename(photo.filename)
 
             photo.save(
@@ -248,17 +244,15 @@ def add_student():
             name=form.name.data,
             gender=form.gender.data,
             dob=form.dob.data,
-            department_id=int(form.department.data),
-            course_id=int(form.course.data),
-            year=int(form.year.data),
+            department_id=form.department.data,
+            course_id=form.course.data,
+            year=form.year.data,
             section=form.section.data,
             email=form.email.data,
             phone=form.phone.data,
             address=form.address.data,
             photo=filename
         )
-
-        print("Saving Student...")
 
         db.session.add(student)
 
@@ -280,27 +274,18 @@ def add_student():
 
         try:
             db.session.commit()
-            print("STUDENT SAVED SUCCESSFULLY")
             flash("Student Added Successfully!", "success")
             return redirect(url_for("main.view_students"))
 
         except Exception as e:
             db.session.rollback()
-            print("DATABASE ERROR:")
             print(e)
             flash(str(e), "danger")
-
-    else:
-        if request.method == "POST":
-            print("FORM VALIDATION FAILED")
-            print(form.errors)
 
     return render_template(
         "students/add_student.html",
         form=form
     )
-
-
 @main.route("/students")
 @login_required
 def view_students():
@@ -328,12 +313,24 @@ def delete_student(id):
 
     student = Student.query.get_or_404(id)
 
-    db.session.delete(student)
-    db.session.commit()
+    try:
+        db.session.delete(student)
+        db.session.commit()
 
-    flash("Student deleted successfully!", "success")
+        flash("Student deleted successfully!", "success")
+
+    except IntegrityError:
+        db.session.rollback()
+
+        flash(
+            "Cannot delete this Student because Attendance, Marks or Fees records exist.",
+            "warning"
+        )
 
     return redirect(url_for("main.view_students"))
+
+
+
 @main.route("/students/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_student(id):
@@ -342,25 +339,63 @@ def edit_student(id):
 
     form = StudentForm(obj=student)
 
+    # -------------------------
+    # Load Department dropdown
+    # -------------------------
+    form.department.choices = [
+        (d.id, d.name)
+        for d in Department.query.order_by(Department.name).all()
+    ]
+
+    # -------------------------
+    # Load Course dropdown
+    # -------------------------
+    if request.method == "GET":
+
+        form.department.data = student.department_id
+
+        form.course.choices = [
+            (c.id, c.course_name)
+            for c in Course.query.filter_by(
+                department_id=student.department_id
+            ).order_by(Course.course_name).all()
+        ]
+
+        form.course.data = student.course_id
+
+    else:
+
+        form.course.choices = [
+            (c.id, c.course_name)
+            for c in Course.query.filter_by(
+                department_id=form.department.data
+            ).order_by(Course.course_name).all()
+        ]
+
+    # -------------------------
+    # Save Changes
+    # -------------------------
     if form.validate_on_submit():
 
         student.register_no = form.register_no.data
         student.name = form.name.data
         student.gender = form.gender.data
         student.dob = form.dob.data
-        student.department = form.department.data
-        student.course = form.course.data
-        student.year = form.year.data
+
+        # IMPORTANT
+        student.department_id = form.department.data
+        student.course_id = form.course.data
+
+        student.year = int(form.year.data)
         student.section = form.section.data
         student.email = form.email.data
         student.phone = form.phone.data
         student.address = form.address.data
 
-        # Update photo if a new one is uploaded
+        # Update photo
         if form.photo.data:
 
             photo = form.photo.data
-
             filename = secure_filename(photo.filename)
 
             photo.save(
@@ -382,6 +417,8 @@ def edit_student(id):
         "students/add_student.html",
         form=form
     )
+
+
 @main.route("/students/view/<int:id>")
 @login_required
 def view_student(id):
@@ -439,63 +476,98 @@ def add_teacher():
 
     form = TeacherForm()
 
+    # -----------------------------
+    # Load Departments
+    # -----------------------------
+    departments = Department.query.order_by(Department.name).all()
+
+    form.department.choices = [
+        (str(d.id), d.name)
+        for d in departments
+    ]
+
+    # -----------------------------
+    # Load Subjects (if department selected)
+    # -----------------------------
+    form.subject.choices = []
+
+    if form.department.data:
+
+        subjects = Subject.query.filter_by(
+            department_id=int(form.department.data)
+        ).order_by(Subject.subject_name).all()
+
+        form.subject.choices = [
+            (s.subject_name, s.subject_name)
+            for s in subjects
+        ]
+
+    # -----------------------------
+    # Save Teacher
+    # -----------------------------
     if form.validate_on_submit():
 
-        # ----------------------------------
-        # Check Employee ID
-        # ----------------------------------
         existing_teacher = Teacher.query.filter_by(
             employee_id=form.employee_id.data
         ).first()
 
         if existing_teacher:
+
             flash("Employee ID already exists!", "danger")
+
             return redirect(url_for("main.add_teacher"))
 
-        # ----------------------------------
-        # Check Email
-        # ----------------------------------
         existing_user = User.query.filter_by(
             email=form.email.data
         ).first()
 
         if existing_user:
+
             flash("Email already exists!", "danger")
+
             return redirect(url_for("main.add_teacher"))
 
-        # ----------------------------------
-        # Create Teacher
-        # ----------------------------------
+        # Get Department Name from ID
+        department = Department.query.get(
+            int(form.department.data)
+        )
+
         teacher = Teacher(
+
             employee_id=form.employee_id.data,
+
             name=form.name.data,
-            department=form.department.data,
+
+            department=department.name,
+
             subject=form.subject.data,
+
             email=form.email.data,
+
             phone=form.phone.data
+
         )
 
         db.session.add(teacher)
 
-        # ----------------------------------
-        # Create Login Account
-        # ----------------------------------
         hashed_password = bcrypt.generate_password_hash(
             form.password.data
         ).decode("utf-8")
 
         user = User(
+
             name=form.name.data,
+
             email=form.email.data,
+
             password=hashed_password,
+
             role="Teacher"
+
         )
 
         db.session.add(user)
 
-        # ----------------------------------
-        # Save Database
-        # ----------------------------------
         db.session.commit()
 
         flash("Teacher Added Successfully!", "success")
@@ -508,6 +580,21 @@ def add_teacher():
     )
 
 
+@main.route("/get_subjects/<int:department_id>")
+@login_required
+def get_subjects(department_id):
+
+    subjects = Subject.query.filter_by(
+        department_id=department_id
+    ).order_by(Subject.subject_name).all()
+
+    return jsonify([
+        {
+            "id": s.id,
+            "name": s.subject_name
+        }
+        for s in subjects
+    ])
 
 @main.route("/teachers")
 @login_required
@@ -538,51 +625,106 @@ def edit_teacher(id):
 
     teacher = Teacher.query.get_or_404(id)
 
-    form = TeacherForm(obj=teacher)
+    form = TeacherForm()
 
-    if form.validate_on_submit():
+    # -----------------------------
+    # Department Dropdown
+    # -----------------------------
+    departments = Department.query.order_by(Department.name).all()
 
-        teacher.employee_id = form.employee_id.data
-        teacher.name = form.name.data
-        teacher.department = form.department.data
-        teacher.subject = form.subject.data
-        teacher.email = form.email.data
-        teacher.phone = form.phone.data
+    form.department.choices = [
+        (str(d.id), d.name)
+        for d in departments
+    ]
 
-        db.session.commit()
+    # -----------------------------
+    # POST
+    # -----------------------------
+    if request.method == "POST":
 
-        flash(
-            "Teacher Updated Successfully!",
-            "success"
-        )
+        # Load subjects of selected department
+        subjects = Subject.query.filter_by(
+            department_id=int(form.department.data)
+        ).order_by(Subject.subject_name).all()
 
-        return redirect(url_for("main.view_teachers"))
+        form.subject.choices = [
+            (s.subject_name, s.subject_name)
+            for s in subjects
+        ]
+
+        if form.validate_on_submit():
+
+            department = Department.query.get(
+                int(form.department.data)
+            )
+
+            teacher.employee_id = form.employee_id.data
+            teacher.name = form.name.data
+            teacher.department = department.name
+            teacher.subject = form.subject.data
+            teacher.email = form.email.data
+            teacher.phone = form.phone.data
+
+            db.session.commit()
+
+            flash("Teacher Updated Successfully!", "success")
+
+            return redirect(url_for("main.view_teachers"))
+
+    # -----------------------------
+    # GET
+    # -----------------------------
+    else:
+
+        form.employee_id.data = teacher.employee_id
+        form.name.data = teacher.name
+        form.email.data = teacher.email
+        form.phone.data = teacher.phone
+
+        department = Department.query.filter_by(
+            name=teacher.department
+        ).first()
+
+        if department:
+
+            form.department.data = str(department.id)
+
+            subjects = Subject.query.filter_by(
+                department_id=department.id
+            ).order_by(Subject.subject_name).all()
+
+            form.subject.choices = [
+                (s.subject_name, s.subject_name)
+                for s in subjects
+            ]
+
+            form.subject.data = teacher.subject
 
     return render_template(
         "teachers/add_teacher.html",
         form=form
     )
-
-
 @main.route("/teachers/delete/<int:id>")
 @login_required
 def delete_teacher(id):
 
     teacher = Teacher.query.get_or_404(id)
 
-    db.session.delete(teacher)
+    try:
+        db.session.delete(teacher)
+        db.session.commit()
 
-    db.session.commit()
+        flash("Teacher deleted successfully!", "success")
 
-    flash(
-        "Teacher Deleted Successfully!",
-        "success"
-    )
+    except IntegrityError:
+        db.session.rollback()
 
-    return redirect(
-        url_for("main.view_teachers")
-    )
+        flash(
+            "Cannot delete this Teacher because they are assigned in the Timetable or Attendance.",
+            "warning"
+        )
 
+    return redirect(url_for("main.view_teachers"))
 
 @main.route("/teachers/view/<int:id>")
 @login_required
@@ -602,6 +744,11 @@ def add_subject():
 
     form = SubjectForm()
 
+    form.department.choices = [
+        (d.id, d.name)
+        for d in Department.query.order_by(Department.name).all()
+    ]
+
     if form.validate_on_submit():
 
         subject = Subject(
@@ -609,13 +756,47 @@ def add_subject():
             subject_name=form.subject_name.data,
             semester=form.semester.data,
             credits=form.credits.data,
-            department=form.department.data
+            department_id=form.department.data
         )
 
         db.session.add(subject)
         db.session.commit()
 
         flash("Subject Added Successfully!", "success")
+        return redirect(url_for("main.view_subjects"))
+
+    return render_template(
+        "subjects/add_subject.html",
+        form=form
+    )
+
+@main.route("/subjects/edit/<int:id>", methods=["GET", "POST"])
+@login_required
+def edit_subject(id):
+
+    subject = Subject.query.get_or_404(id)
+
+    form = SubjectForm(obj=subject)
+
+    form.department.choices = [
+        (d.id, d.name)
+        for d in Department.query.order_by(Department.name).all()
+    ]
+
+    if request.method == "GET":
+        form.department.data = subject.department_id
+
+    if form.validate_on_submit():
+
+        subject.subject_code = form.subject_code.data
+        subject.subject_name = form.subject_name.data
+        subject.semester = form.semester.data
+        subject.credits = form.credits.data
+        subject.department_id = form.department.data
+
+        db.session.commit()
+
+        flash("Subject Updated Successfully!", "success")
 
         return redirect(url_for("main.view_subjects"))
 
@@ -624,6 +805,27 @@ def add_subject():
         form=form
     )
 
+@main.route("/subjects/delete/<int:id>")
+@login_required
+def delete_subject(id):
+
+    subject = Subject.query.get_or_404(id)
+
+    try:
+        db.session.delete(subject)
+        db.session.commit()
+
+        flash("Subject deleted successfully!", "success")
+
+    except IntegrityError:
+        db.session.rollback()
+
+        flash(
+            "Cannot delete this Subject because it is used in Marks or Timetable.",
+            "warning"
+        )
+
+    return redirect(url_for("main.view_subjects"))
 
 @main.route("/courses/add", methods=["GET", "POST"])
 @login_required
@@ -631,37 +833,43 @@ def add_course():
 
     form = CourseForm()
 
+    departments = Department.query.order_by(Department.name).all()
+
+    form.department.choices = [
+        (0, "Select Department")
+    ] + [
+        (d.id, d.name) for d in departments
+    ]
+
     if form.validate_on_submit():
 
+        if form.department.data == 0:
+            flash("Please select a department.", "danger")
+            return render_template(
+                "courses/add_course.html",
+                form=form
+            )
+
         course = Course(
-
             course_code=form.course_code.data,
-
             course_name=form.course_name.data,
-
+            department_id=form.department.data,
             duration=form.duration.data,
-
             description=form.description.data
-
         )
 
         db.session.add(course)
-
         db.session.commit()
 
-        flash(
-            "Course Added Successfully!",
-            "success"
-        )
+        flash("Course Added Successfully!", "success")
 
-        return redirect(
-            url_for("main.view_courses")
-        )
+        return redirect(url_for("main.view_courses"))
 
     return render_template(
         "courses/add_course.html",
         form=form
     )
+
 
 @main.route("/courses")
 @login_required
@@ -682,29 +890,34 @@ def edit_course(id):
 
     form = CourseForm(obj=course)
 
+    # Load Department dropdown
+    form.department.choices = [
+        (d.id, d.name)
+        for d in Department.query.order_by(Department.name).all()
+    ]
+
+    # Select the current department when opening the edit page
+    if request.method == "GET":
+        form.department.data = course.department_id
+
     if form.validate_on_submit():
 
         course.course_code = form.course_code.data
         course.course_name = form.course_name.data
+        course.department_id = form.department.data
         course.duration = form.duration.data
         course.description = form.description.data
 
         db.session.commit()
 
-        flash(
-            "Course Updated Successfully!",
-            "success"
-        )
+        flash("Course Updated Successfully!", "success")
 
-        return redirect(
-            url_for("main.view_courses")
-        )
+        return redirect(url_for("main.view_courses"))
 
     return render_template(
         "courses/add_course.html",
         form=form
     )
-
 
 @main.route("/subjects")
 @login_required
@@ -974,24 +1187,28 @@ def edit_department(id):
         "departments/add_department.html",
         form=form
     )
-
 @main.route("/departments/delete/<int:id>")
 @login_required
 def delete_department(id):
 
     department = Department.query.get_or_404(id)
 
-    db.session.delete(department)
-    db.session.commit()
+    try:
+        db.session.delete(department)
+        db.session.commit()
 
-    flash(
-        "Department Deleted Successfully!",
-        "success"
-    )
+        flash("Department deleted successfully!", "success")
 
-    return redirect(
-        url_for("main.view_departments")
-    )
+    except IntegrityError:
+        db.session.rollback()
+
+        flash(
+            "Cannot delete this Department because it is used by Courses, Subjects, Students or Teachers.",
+            "warning"
+        )
+
+    return redirect(url_for("main.view_departments"))
+
 
 @main.route("/courses/delete/<int:id>")
 @login_required
@@ -999,13 +1216,21 @@ def delete_course(id):
 
     course = Course.query.get_or_404(id)
 
-    db.session.delete(course)
-    db.session.commit()
+    try:
+        db.session.delete(course)
+        db.session.commit()
 
-    flash("Course Deleted Successfully!", "success")
+        flash("Course deleted successfully!", "success")
+
+    except IntegrityError:
+        db.session.rollback()
+
+        flash(
+            "Cannot delete this Course because it is assigned in the Timetable or used by Students.",
+            "warning"
+        )
 
     return redirect(url_for("main.view_courses"))
-
 
 @main.route("/student")
 @login_required
@@ -1055,11 +1280,13 @@ def add_marks():
 
     form = MarkForm()
 
+    # Load Students
     form.student.choices = [
         (student.id, student.name)
         for student in Student.query.order_by(Student.name).all()
     ]
 
+    # Load Subjects
     form.subject.choices = [
         (subject.id, subject.subject_name)
         for subject in Subject.query.order_by(Subject.subject_name).all()
@@ -1067,8 +1294,25 @@ def add_marks():
 
     if form.validate_on_submit():
 
-        total = form.internal.data + form.external.data
+        # Prevent duplicate entry
+        existing_mark = Mark.query.filter_by(
+            student_id=form.student.data,
+            subject_id=form.subject.data
+        ).first()
 
+        if existing_mark:
+            flash(
+                "Marks for this student and subject already exist!",
+                "danger"
+            )
+            return redirect(url_for("main.add_marks"))
+
+        internal = form.internal.data
+        external = form.external.data
+
+        total = internal + external
+
+        # Grade Calculation
         if total >= 90:
             grade = "A+"
         elif total >= 80:
@@ -1082,27 +1326,41 @@ def add_marks():
         else:
             grade = "F"
 
+        # Result Calculation
+        if total >= 50:
+            result = "PASS"
+        else:
+            result = "FAIL"
+
         mark = Mark(
             student_id=form.student.data,
             subject_id=form.subject.data,
-            internal=form.internal.data,
-            external=form.external.data,
+            internal=internal,
+            external=external,
             total=total,
-            grade=grade
+            grade=grade,
+            result=result
         )
 
-        db.session.add(mark)
-        db.session.commit()
+        try:
+            db.session.add(mark)
+            db.session.commit()
 
-        flash("Marks Added Successfully!", "success")
+            flash(
+                "Marks Added Successfully!",
+                "success"
+            )
 
-        return redirect(url_for("main.view_marks"))
+            return redirect(url_for("main.view_marks"))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Database Error: {str(e)}", "danger")
 
     return render_template(
         "marks/add_marks.html",
         form=form
     )
-
 
 @main.route("/result/<int:student_id>")
 @login_required
@@ -1506,43 +1764,113 @@ def add_timetable():
         form=form
     )
 
-
 @main.route("/teacher/timetable")
 @login_required
 def teacher_timetable():
 
-    timetable = Timetable.query.order_by(
+    # Find the logged-in teacher
+    teacher = Teacher.query.filter_by(
+        email=current_user.email
+    ).first_or_404()
+
+    # Get only this teacher's timetable
+    timetable = Timetable.query.filter_by(
+        teacher_id=teacher.id
+    ).order_by(
         Timetable.day,
         Timetable.period
     ).all()
 
+    # Days and Periods
+    days = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+    ]
+
+    periods = [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+    ]
+
+    # Create timetable grid
+    timetable_grid = {}
+
+    for period in periods:
+
+        timetable_grid[period] = {}
+
+        for day in days:
+            timetable_grid[period][day] = None
+
+    # Fill timetable
+    for row in timetable:
+
+        timetable_grid[str(row.period)][row.day] = row
+
     return render_template(
         "teacher/timetable.html",
-        timetable=timetable
+        timetable_grid=timetable_grid,
+        days=days,
+        periods=periods
     )
 
 @main.route("/timetable")
 @login_required
 def view_timetable():
 
-    timetable = Timetable.query.all()
+    timetable = Timetable.query.order_by(
+        Timetable.day,
+        Timetable.period
+    ).all()
 
-    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    days = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+    ]
+
+    periods = [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+    ]
 
     timetable_data = {}
 
     for day in days:
         timetable_data[day] = {}
+        for period in periods:
+            timetable_data[day][period] = None
 
     for row in timetable:
-
         timetable_data[row.day][str(row.period)] = row
 
     return render_template(
         "timetable/view_timetable.html",
         timetable_data=timetable_data,
-        days=days
+        days=days,
+        periods=periods
     )
+
+
 @main.route("/timetable/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_timetable(id):
@@ -1611,12 +1939,22 @@ def delete_timetable(id):
 
     timetable = Timetable.query.get_or_404(id)
 
-    db.session.delete(timetable)
-    db.session.commit()
+    try:
+        db.session.delete(timetable)
+        db.session.commit()
 
-    flash("Timetable Deleted Successfully!", "success")
+        flash("Timetable deleted successfully!", "success")
+
+    except IntegrityError:
+        db.session.rollback()
+
+        flash(
+            "Unable to delete this Timetable.",
+            "warning"
+        )
 
     return redirect(url_for("main.view_timetable"))
+
 
 
 @main.route("/notice/add", methods=["GET", "POST"])
@@ -1791,13 +2129,23 @@ def delete_book(id):
 
     book = Library.query.get_or_404(id)
 
-    db.session.delete(book)
+    try:
+        # Delete all issue records of this book
+        BookIssue.query.filter_by(book_id=id).delete()
 
-    db.session.commit()
+        # Delete the book
+        db.session.delete(book)
 
-    flash("Book Deleted Successfully!", "success")
+        db.session.commit()
+
+        flash("Book deleted successfully!", "success")
+
+    except Exception as e:
+        db.session.rollback()
+        flash(str(e), "danger")
 
     return redirect(url_for("main.view_books"))
+
 
 
 @main.route("/library/issue", methods=["GET", "POST"])

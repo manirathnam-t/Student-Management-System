@@ -55,7 +55,7 @@ class Student(db.Model):
 
     department_id = db.Column(
         db.Integer,
-        db.ForeignKey("department.id"),
+        db.ForeignKey("department.id",ondelete="CASCADE"),
         nullable=False
     )
 
@@ -106,35 +106,72 @@ class Teacher(db.Model):
 
     name = db.Column(db.String(100), nullable=False)
 
-    department = db.Column(db.String(100), nullable=False)
+    department = db.Column(
+        db.String(100),
+        nullable=False
+    )
 
-    subject = db.Column(db.String(100), nullable=False)
+    subject = db.Column(
+        db.String(100),
+        nullable=False
+    )
 
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(
+        db.String(120),
+        unique=True,
+        nullable=False
+    )
 
-    phone = db.Column(db.String(15), nullable=False)
+    phone = db.Column(
+        db.String(15),
+        nullable=False
+    )
 
     def __repr__(self):
-        return f"<Teacher {self.name}>"
-    
-
-
+        return f"<Teacher {self.name}>"    
 
 class Subject(db.Model):
     __tablename__ = "subjects"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
-    subject_code = db.Column(db.String(20), unique=True, nullable=False)
+    subject_code = db.Column(
+        db.String(20),
+        unique=True,
+        nullable=False
+    )
 
-    subject_name = db.Column(db.String(100), nullable=False)
+    subject_name = db.Column(
+        db.String(100),
+        nullable=False
+    )
 
-    semester = db.Column(db.Integer, nullable=False)
+    semester = db.Column(
+        db.Integer,
+        nullable=False
+    )
 
-    credits = db.Column(db.Integer, default=3)
+    credits = db.Column(
+        db.Integer,
+        default=3
+    )
 
-    department = db.Column(db.String(100), nullable=False)
+    department_id = db.Column(
+        db.Integer,
+        db.ForeignKey("department.id"),
+        nullable=False
+    )
 
+    department = db.relationship(
+        "Department",
+        backref="subjects"
+    )
+
+    def __repr__(self):
+        return f"<Subject {self.subject_name}>"
 class Attendance(db.Model):
     __tablename__ = "attendance"
 
@@ -209,9 +246,20 @@ class Department(db.Model):
         lazy=True
     )
 
-    def __repr__(self):
-        return f"<Department {self.name}>"
+    timetables = db.relationship(
+        "Timetable",
+        backref="department_obj",
+        cascade="all, delete",
+        lazy=True
+    )
 
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
+        
 class Course(db.Model):
     __tablename__ = "courses"
 
@@ -233,7 +281,7 @@ class Course(db.Model):
 
     department_id = db.Column(
         db.Integer,
-        db.ForeignKey("department.id"),
+        db.ForeignKey("department.id",ondelete="CASCADE"),
         nullable=False
     )
 
@@ -261,6 +309,8 @@ class Course(db.Model):
     def __repr__(self):
         return f"<Course {self.course_name}>"
 
+    def __str__(self):
+        return self.course_name
     
 @login_manager.user_loader
 def load_user(user_id):
@@ -360,7 +410,7 @@ class Timetable(db.Model):
 
     department_id = db.Column(
         db.Integer,
-        db.ForeignKey("department.id"),
+        db.ForeignKey("department.id",ondelete="CASCADE"),
         nullable=False
     )
 
@@ -398,7 +448,10 @@ class Timetable(db.Model):
         nullable=False
     )
 
-    department = db.relationship("Department")
+    department = db.relationship(
+        "Department",
+        back_populates="timetables"
+    )
     course = db.relationship("Course")
     subject = db.relationship("Subject")
     teacher = db.relationship("Teacher")
@@ -418,33 +471,66 @@ class Notice(db.Model):
 class Library(db.Model):
     __tablename__ = "library"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
-    book_code = db.Column(db.String(20), unique=True, nullable=False)
+    book_code = db.Column(
+        db.String(20),
+        unique=True,
+        nullable=False
+    )
 
-    book_name = db.Column(db.String(150), nullable=False)
+    book_name = db.Column(
+        db.String(150),
+        nullable=False
+    )
 
-    author = db.Column(db.String(100), nullable=False)
+    author = db.Column(
+        db.String(100),
+        nullable=False
+    )
 
-    quantity = db.Column(db.Integer, default=1)
+    quantity = db.Column(
+        db.Integer,
+        default=1
+    )
 
-    available = db.Column(db.Integer, default=1)
+    available = db.Column(
+        db.Integer,
+        default=1
+    )
+
+    issued_books = db.relationship(
+        "BookIssue",
+        back_populates="book",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        lazy=True
+    )
+
+    def __repr__(self):
+        return f"<Library {self.book_name}>"
 
 
 class BookIssue(db.Model):
     __tablename__ = "book_issues"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
     student_id = db.Column(
         db.Integer,
-        db.ForeignKey("students.id"),
+        db.ForeignKey("students.id", ondelete="CASCADE"),
         nullable=False
     )
 
     book_id = db.Column(
         db.Integer,
-        db.ForeignKey("library.id"),
+        db.ForeignKey("library.id", ondelete="CASCADE"),
         nullable=False
     )
 
@@ -462,10 +548,18 @@ class BookIssue(db.Model):
         default="Issued"
     )
 
-    student = db.relationship("Student")
+    student = db.relationship(
+        "Student",
+        backref="issued_books"
+    )
 
-    book = db.relationship("Library")
+    book = db.relationship(
+        "Library",
+        back_populates="issued_books"
+    )
 
+    def __repr__(self):
+        return f"<BookIssue {self.id}>"
 class Classroom(db.Model):
     __tablename__ = "classrooms"
 

@@ -35,7 +35,7 @@ content %}
       {% for department in departments %}
 
       <tr>
-        <td>{{ department.id }}</td>
+        <td>{{ loop.index }}</td>
 
         <td>{{ department.name }}</td>
 

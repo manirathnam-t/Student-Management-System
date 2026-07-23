@@ -1,84 +1,93 @@
-{% extends "base.html" %} {% block title %}Fees{% endblock %} {% block content
-%}
+{% extends "base.html" %}
+
+{% block title %}Fees{% endblock %}
+
+{% block content %}
 
 <div class="container mt-4">
-  <h2>Student Fees</h2>
 
-  <a href="{{ url_for('main.add_fee') }}" class="btn btn-success mb-3">
-    ➕ Add Fee
-  </a>
+    <h2>Student Fees</h2>
 
-  <table class="table table-bordered table-hover">
-    <thead class="table-dark">
-      <tr>
-        <th>ID</th>
-        <th>Student</th>
-        <th>Total Fee</th>
-        <th>Paid</th>
-        <th>Balance</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {% for fee in fees %}
-
-      <tr>
-        <td>{{ fee.id }}</td>
-
-        <td>{{ fee.student.name }}</td>
-
-        <td>₹ {{ fee.amount }}</td>
-
-        <td>₹ {{ fee.paid }}</td>
-
-        <td>₹ {{ fee.balance }}</td>
-
-        <td>
-          {% if fee.status == "Paid" %}
-
-          <span class="badge bg-success"> Paid </span>
-
-          {% else %}
-
-          <span class="badge bg-danger"> Pending </span>
-
-          {% endif %}
-        </td>
-
-        <td>
-          <a
-            href="{{ url_for('main.edit_fee', id=fee.id) }}"
-            class="btn btn-warning btn-sm"
-          >
-            Edit
-          </a>
-
-          <a
-            href="{{ url_for('main.delete_fee', id=fee.id) }}"
-            class="btn btn-danger btn-sm"
-            onclick="return confirm('Delete this fee record?');"
-          >
-            Delete
-          </a>
-        </td>
-      </tr>
-
-      {% else %}
-
-      <tr>
-        <td colspan="7" class="text-center">No Fee Records Found</td>
-      </tr>
-
-      {% endfor %}
-    </tbody>
-  </table>
-  <div class="mb-3">
-    <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-secondary">
-      ← Back to Dashboard
+    <a href="{{ url_for('main.add_fee') }}"
+       class="btn btn-success mb-3">
+        ➕ Add Fee
     </a>
-  </div>
+
+    <table class="table table-bordered table-hover">
+
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Student</th>
+                <th>Total Fee</th>
+                <th>Paid</th>
+                <th>Balance</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for fee in fees %}
+
+            <tr>
+
+                <!-- Serial Number -->
+                <td>{{ loop.index }}</td>
+
+                <td>{{ fee.student.name }}</td>
+
+                <td>₹ {{ fee.amount }}</td>
+
+                <td>₹ {{ fee.paid }}</td>
+
+                <td>₹ {{ fee.balance }}</td>
+
+                <td>
+                    {% if fee.status == "Paid" %}
+                        <span class="badge bg-success">Paid</span>
+                    {% else %}
+                        <span class="badge bg-danger">Pending</span>
+                    {% endif %}
+                </td>
+
+                <td>
+
+                    <a href="{{ url_for('main.edit_fee', id=fee.id) }}"
+                       class="btn btn-warning btn-sm">
+                        Edit
+                    </a>
+
+                    <a href="{{ url_for('main.delete_fee', id=fee.id) }}"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Delete this fee record?');">
+                        Delete
+                    </a>
+
+                </td>
+
+            </tr>
+
+        {% else %}
+
+            <tr>
+                <td colspan="7" class="text-center">
+                    No Fee Records Found
+                </td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    <a href="{{ url_for('main.admin_dashboard') }}"
+       class="btn btn-secondary">
+        ← Back to Dashboard
+    </a>
+
 </div>
 
 {% endblock %}

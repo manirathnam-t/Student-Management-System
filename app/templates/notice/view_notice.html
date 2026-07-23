@@ -27,8 +27,7 @@ content %}
       {% for notice in notices %}
 
       <tr>
-        <td>{{ notice.id }}</td>
-
+        <td>{{ loop.index }}</td>
         <td>{{ notice.title }}</td>
 
         <td>{{ notice.description }}</td>
@@ -62,11 +61,11 @@ content %}
       {% endfor %}
     </tbody>
   </table>
- 
+
   <div class="mb-3">
     <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-primary">
-    ← Back to Dashboard
-</a>
+      ← Back to Dashboard
+    </a>
   </div>
 </div>
 
