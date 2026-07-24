@@ -1,131 +1,131 @@
-{% extends "base.html" %}
-
-{% block title %}Edit Attendance{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Edit Attendance{% endblock %} {%
+block content %}
 
 <div class="container mt-4">
+  <h2>✏️ Edit Attendance</h2>
 
-    <h2>✏️ Edit Attendance</h2>
+  <form method="POST">
+    <div class="row mb-3">
+      <div class="col-md-5">
+        <label class="form-label">Subject</label>
 
-    <form method="POST">
+        <select class="form-select" name="subject_id" required>
+          {% for subject in subjects %}
+          <option value="{{ subject.id }}">{{ subject.subject_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-        <div class="row mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Date</label>
 
-            <div class="col-md-5">
-                <label class="form-label">Subject</label>
+        <input
+          type="date"
+          name="attendance_date"
+          class="form-control"
+          required
+        />
+      </div>
 
-                <select class="form-select" name="subject_id" required>
-                    {% for subject in subjects %}
-                    <option value="{{ subject.id }}">
-                        {{ subject.subject_name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
+      <div class="col-md-3">
+        <label class="form-label">&nbsp;</label>
 
-            <div class="col-md-4">
-                <label class="form-label">Date</label>
+        <button
+          type="submit"
+          class="btn btn-primary w-100"
+          name="action"
+          value="search"
+        >
+          🔍 Search
+        </button>
+      </div>
+    </div>
 
-                <input
-                    type="date"
-                    name="attendance_date"
-                    class="form-control"
-                    required>
-            </div>
+    {% if attendance_list %}
 
-            <div class="col-md-3">
-                <label class="form-label">&nbsp;</label>
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>Photo</th>
+          <th>Register No</th>
+          <th>Name</th>
+          <th>Status</th>
+        </tr>
+      </thead>
 
-                <button
-                    type="submit"
-                    class="btn btn-primary w-100"
-                    name="action"
-                    value="search">
-                    🔍 Search
-                </button>
-            </div>
+      <tbody>
+        {% for attendance in attendance_list %}
 
-        </div>
+        <tr>
+          <td>
+            {% if student.photo and student.photo.startswith("http") %}
+            <img src="{{ student.photo }}" />
+            {% else %}
+            <img
+              src="{{ url_for('static', filename='uploads/students/' + (student.photo or 'default.png')) }}"
+            />
+            {% endif %}
+          </td>
 
-        {% if attendance_list %}
+          <td>{{ attendance.student.register_no }}</td>
 
-        <table class="table table-bordered table-hover">
+          <td>{{ attendance.student.name }}</td>
 
-            <thead class="table-dark">
-                <tr>
-                    <th>Photo</th>
-                    <th>Register No</th>
-                    <th>Name</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
+          <td>
+            <select class="form-select" name="status_{{ attendance.id }}">
+              <option
+                value="Present"
+                {%
+                if
+                attendance.status=""
+                ="Present"
+                %}selected{%
+                endif
+                %}
+              >
+                ✅ Present
+              </option>
 
-            <tbody>
+              <option
+                value="Absent"
+                {%
+                if
+                attendance.status=""
+                ="Absent"
+                %}selected{%
+                endif
+                %}
+              >
+                ❌ Absent
+              </option>
+            </select>
+          </td>
+        </tr>
 
-                {% for attendance in attendance_list %}
+        {% endfor %}
+      </tbody>
+    </table>
 
-                <tr>
+    <div class="d-flex gap-3 mt-4">
+      <button
+        type="submit"
+        class="btn btn-success"
+        name="action"
+        value="update"
+      >
+        💾 Update Attendance
+      </button>
 
-                    <td>
-                        <img
-                            src="{{ url_for('static', filename='uploads/students/' + attendance.student.photo) }}"
-                            width="45"
-                            height="45"
-                            class="rounded-circle">
-                    </td>
+      <a
+        href="{{ url_for('main.teacher_dashboard') }}"
+        class="btn btn-secondary"
+      >
+        ← Back
+      </a>
+    </div>
 
-                    <td>{{ attendance.student.register_no }}</td>
-
-                    <td>{{ attendance.student.name }}</td>
-
-                    <td>
-
-                        <select class="form-select" name="status_{{ attendance.id }}">
-
-                            <option value="Present"
-                                {% if attendance.status == "Present" %}selected{% endif %}>
-                                ✅ Present
-                            </option>
-
-                            <option value="Absent"
-                                {% if attendance.status == "Absent" %}selected{% endif %}>
-                                ❌ Absent
-                            </option>
-
-                        </select>
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-        <div class="d-flex gap-3 mt-4">
-
-            <button
-                type="submit"
-                class="btn btn-success"
-                name="action"
-                value="update">
-                💾 Update Attendance
-            </button>
-
-            <a href="{{ url_for('main.teacher_dashboard') }}"
-               class="btn btn-secondary">
-                ← Back
-            </a>
-
-        </div>
-
-        {% endif %}
-
-    </form>
-
+    {% endif %}
+  </form>
 </div>
 
 {% endblock %}

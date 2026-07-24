@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block title %}Student Profile{% endblock %} {%
+{% extends "base.html" %} {% block title %} Student Profile {% endblock %} {%
 block content %}
 
 <div class="container mt-4">
@@ -9,21 +9,36 @@ block content %}
 
     <div class="card-body">
       <div class="row">
+        <!-- Student Photo -->
         <div class="col-md-3 text-center">
+          {% if student.photo and student.photo.startswith("http") %}
+
           <img
-            src="{{ url_for('static', filename='uploads/students/' + student.photo) }}"
-            class="img-thumbnail mb-3"
-            width="180"
-            height="180"
+            src="{{ student.photo }}"
+            class="img-thumbnail rounded shadow"
+            alt="Student Photo"
+            style="width: 220px; height: 220px; object-fit: cover"
           />
 
-          <h4>{{ student.name }}</h4>
+          {% else %}
+
+          <img
+            src="{{ url_for('static', filename='uploads/students/' + (student.photo or 'default.png')) }}"
+            class="img-thumbnail rounded shadow"
+            alt="Student Photo"
+            style="width: 220px; height: 220px; object-fit: cover"
+          />
+
+          {% endif %}
+
+          <h4 class="mt-3">{{ student.name }}</h4>
         </div>
 
+        <!-- Student Details -->
         <div class="col-md-9">
-          <table class="table table-bordered">
+          <table class="table table-bordered table-striped">
             <tr>
-              <th>Student ID</th>
+              <th width="35%">Student ID</th>
               <td>{{ student.register_no }}</td>
             </tr>
 
@@ -59,7 +74,7 @@ block content %}
 
             <tr>
               <th>Course</th>
-              <td>{{ student.course }}</td>
+              <td>{{ student.course.course_name }}</td>
             </tr>
 
             <tr>
@@ -77,14 +92,9 @@ block content %}
     </div>
 
     <div class="card-footer">
-      <div class="mb-3">
-        <a
-          href="{{ url_for('main.admin_dashboard') }}"
-          class="btn btn-secondary"
-        >
-          ← Back to Dashboard
-        </a>
-      </div>
+      <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-secondary">
+        ← Back to Dashboard
+      </a>
     </div>
   </div>
 </div>

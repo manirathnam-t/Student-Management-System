@@ -22,15 +22,13 @@ block content %}
             width="220"
           />
 
+          {% else %} {% if student.photo and student.photo.startswith("http") %}
+          <img src="{{ student.photo }}" />
           {% else %}
-
           <img
-            src="{{ url_for('static', filename='uploads/profile_pics/' + student.photo) }}"
-            class="img-fluid rounded"
-            width="220"
+            src="{{ url_for('static', filename='uploads/students/' + (student.photo or 'default.png')) }}"
           />
-
-          {% endif %}
+          {% endif %} {% endif %}
         </div>
 
         <div class="col-md-8">

@@ -240,15 +240,13 @@ def add_student():
         if form.photo.data and form.photo.data.filename != "":
 
             print("=" * 60)
-            print("Photo Object :", form.photo.data)
-            print("Photo Type   :", type(form.photo.data))
-            print("Filename     :", form.photo.data.filename)
-            print("Content-Type :", form.photo.data.content_type)
+            print("PHOTO OBJECT :", form.photo.data)
+            print("PHOTO TYPE   :", type(form.photo.data))
+            print("FILENAME     :", form.photo.data.filename)
+            print("CONTENT TYPE :", form.photo.data.content_type)
             print("=" * 60)
 
             try:
-
-                form.photo.data.stream.seek(0)
 
                 upload_result = cloudinary.uploader.upload(
                     form.photo.data.stream,
@@ -261,14 +259,16 @@ def add_student():
                 print("=" * 60)
                 print("UPLOAD SUCCESS")
                 print(upload_result)
+                print("IMAGE URL :", filename)
                 print("=" * 60)
 
-            except Exception as e:
+            except Exception:
+
+                import traceback
 
                 print("=" * 60)
                 print("CLOUDINARY ERROR")
-                print(type(e))
-                print(e)
+                traceback.print_exc()
                 print("=" * 60)
 
                 filename = "default.png"
@@ -340,7 +340,6 @@ def add_student():
         "students/add_student.html",
         form=form
     )
-
 @main.route("/students")
 @login_required
 def view_students():

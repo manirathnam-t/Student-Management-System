@@ -66,12 +66,13 @@ block content %}
 
             <tr>
               <td>
+                {% if student.photo and student.photo.startswith("http") %}
+                <img src="{{ student.photo }}" />
+                {% else %}
                 <img
-                  src="{{ url_for('static', filename='uploads/students/' + student.photo) }}"
-                  width="45"
-                  height="45"
-                  class="rounded-circle"
+                  src="{{ url_for('static', filename='uploads/students/' + (student.photo or 'default.png')) }}"
                 />
+                {% endif %}
               </td>
 
               <td class="text-center">
@@ -102,7 +103,6 @@ block content %}
           <button type="submit" class="btn btn-success">
             💾 Save Attendance
           </button>
-          
 
           <a href="javascript:history.back()" class="btn btn-secondary">
             ← Back
